@@ -1,3 +1,4 @@
+// app/api/upload/route.ts
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -20,16 +21,17 @@ export async function POST(request: Request) {
       );
     }
 
-    // تحويل الملف إلى Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // رفع الملف إلى Cloudinary
+    // تعيين timeout أطول وإضافة خيارات إضافية
     const result: any = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: `pages/${folder}`,
           resource_type: "auto",
+          timeout: 60000, // زيادة التايم اوت إلى 60 ثانية
+          chunk_size: 6000000, // تحديد حجم القطع
         },
         (error, result) => {
           if (error) {
@@ -40,19 +42,22 @@ export async function POST(request: Request) {
           }
         }
       );
-      
+
       uploadStream.end(buffer);
     });
 
     return NextResponse.json({
-      url: result.secure_url,  // تغيير هذا من secure_url إلى url
+      url: result.secure_url,
       publicId: result.public_id
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("خطأ في رفع الملف:", error);
     return NextResponse.json(
-      { error: "فشل في رفع الملف" },
+      { 
+        error: error.message || "فشل في رفع الملف",
+        details: error 
+      },
       { status: 500 }
     );
   }

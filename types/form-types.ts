@@ -53,3 +53,17 @@ export interface PageFormProps {
 
 
 
+export interface ProjectFormData {
+  title: string;
+  description?: string;
+  content?: string;
+  targetAmount?: number;
+  startDate?: string | Date;
+  endDate?: string | Date | null;
+  coverImage?: string;
+  images?: {
+      url: string;
+      publicId: string;
+  }[];
+  isPublished: boolean;
+}

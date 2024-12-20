@@ -1,22 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
-
 import { cn, formatDate, placeholderBlurhash } from "@/lib/utils";
-
 import BlurImage from "../shared/blur-image";
 import { Project } from "@prisma/client";
 
-export function ProjectCard({
-  data,
-  priority,
-  horizontale = false,
-}: {
+interface ProjectCardProps {
   data: Project & {
-    blurDataURL: string;
+    blurDataURL?: string; // جعلها اختيارية
   };
   priority?: boolean;
   horizontale?: boolean;
-}) {
+}
+
+export function ProjectCard({ data, priority, horizontale = false }: ProjectCardProps) {
   return (
     <article
       className={cn(
@@ -30,7 +26,7 @@ export function ProjectCard({
         <div className="w-full overflow-hidden rounded-xl border">
           <BlurImage
             alt={data.title}
-            blurDataURL={data.blurDataURL ?? placeholderBlurhash}
+            blurDataURL={data.blurDataURL || placeholderBlurhash} // استخدام || بدلاً من ??
             className={cn(
               "size-full object-cover object-center",
               horizontale ? "lg:h-72" : null,
@@ -61,9 +57,6 @@ export function ProjectCard({
           )}
         </div>
       </div>
-      {/* <Link href={data.slug} className="absolute inset-0">
-        <span className="sr-only">View Article</span>
-      </Link> */}
     </article>
   );
 }

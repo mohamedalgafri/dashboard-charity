@@ -84,18 +84,6 @@ model TwoFactorConfirmation {
   @@unique([userId])
 }
 
-model Project {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(200)
-  description String
-  image       String?
-  visble      Boolean @default(true)
-  createdAt   DateTime @default(now()) @map(name: "created_at")
-  updatedAt   DateTime @default(now()) @map(name: "updated_at")
-
-  @@map(name: "project")
-}
-
 
 model Page {
   id          Int       @id @default(autoincrement())
@@ -145,4 +133,51 @@ model Input {
   updatedAt   DateTime  @updatedAt
 
   @@index([sectionId])
+}
+
+model Project {
+  id              Int       @id @default(autoincrement())
+  title           String    
+  slug            String    @unique
+  description     String?   @db.Text
+  content         String?   @db.Text
+  targetAmount    Float?    
+  currentAmount   Float     @default(0)
+  startDate       DateTime  @default(now())
+  endDate         DateTime?
+  coverImage      String?   
+  isPublished     Boolean   @default(false)
+  images          ProjectImage[]
+  donations       Donation[] // إضافة العلاقة العكسية
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([isPublished])
+}
+
+model ProjectImage {
+  id          Int       @id @default(autoincrement())
+  url         String
+  publicId    String?
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  order       Int?
+  createdAt   DateTime  @default(now())
+}
+
+model Donation {
+  id          Int       @id @default(autoincrement())
+  amount      Float
+  projectId   Int
+  project     Project   @relation(fields: [projectId], references: [id])
+  donorName   String    // اسم المتبرع
+  email       String?   // البريد الإلكتروني (اختياري)
+  phone       String?   // رقم الهاتف (اختياري)
+  status      String    @default("pending") // pending, completed, failed
+  anonymous   Boolean   @default(false) // هل يريد إخفاء اسمه؟
+  message     String?   @db.Text // رسالة من المتبرع (اختياري)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([projectId, status])
 }
