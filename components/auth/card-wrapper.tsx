@@ -1,0 +1,47 @@
+"use client"
+
+import BackButton from "./back-button";
+import Header from "./header";
+import Social from "./social";
+
+interface CardWrapperProps {
+    children: React.ReactNode;
+    headerLabel?:string;
+    backButtonLabel?:string;
+    backButtonHref:string;
+    showSocial?:boolean;
+}
+
+const CardWrapper = ({
+    children,
+    headerLabel,
+    backButtonLabel,
+    backButtonHref,
+    showSocial,
+}:CardWrapperProps) => {
+  return (
+    <div className="bg-white dark:bg-gray-700 w-[400px] shadow-md rounded-xl">
+        <div className="p-5">
+            <Header label={headerLabel} />
+        </div>
+        <div className="p-5">
+            {children}
+        </div>
+        {
+            showSocial && (
+                <div className="p-5 text-center w-full flex justify-center" >
+                    <Social />
+                </div>
+            )
+        }
+        <div className="p-5">
+            <BackButton
+                label={backButtonLabel}
+                href={backButtonHref}
+            />
+        </div>
+    </div>
+  )
+}
+
+export default CardWrapper
