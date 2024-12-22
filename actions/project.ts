@@ -103,10 +103,26 @@ export async function updateProject(id: number, formData: ProjectFormData) {
         where: { slug },
         include: {
           images: true,
+          donations: {
+            select: {
+              id: true,
+              amount: true,
+              message: true,
+              createdAt: true,
+              status: true,
+              donor: {
+                select: {
+                  name: true,
+                  anonymous: true,
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'desc'
+            }
+          }
         },
       });
-  
-      if (!project) return null;
   
       return project;
     } catch (error) {

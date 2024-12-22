@@ -15,7 +15,7 @@ export const columns: ColumnDef<Donation>[] = [
       const donation = row.original;
       return (
         <div className="font-medium">
-          {donation.donor.anonymous ? "متبرع مجهول" : donation.donor.name}
+          {donation.donor.anonymous ? "فاعل خير" : donation.donor.name}
         </div>
       );
     },

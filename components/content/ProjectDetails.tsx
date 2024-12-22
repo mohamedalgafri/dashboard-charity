@@ -2,12 +2,25 @@ import { type Project } from "@prisma/client";
 import ProjectsSlider from "@/components/content/ProjectsSlider";
 import DonationForm from "@/components/forms/DonationForm";
 import DonationProgress from "./DonationProgress";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { User } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface ProjectWithImages extends Project {
   images: {
     id: number;
     url: string;
     order: number | null;
+  }[];
+  donations: {
+    id: number;
+    amount: number;
+    message: string;
+    createdAt: Date;
+    donor: {
+      name: string;
+      anonymous: boolean;
+    };
   }[];
 }
 
@@ -18,6 +31,8 @@ interface ProjectDetailsProps {
 
 export default function ProjectDetails({ project, relatedProjects }: ProjectDetailsProps) {
   const isProjectCompleted = project.currentAmount >= (project.targetAmount || 0);
+
+
   if (!project) {
     return (
       <div className="container mx-auto py-8 text-center">
@@ -26,8 +41,24 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
     );
   }
 
+  // دالة لإنشاء خلفية عشوائية
+  const getRandomColor = () => {
+    const colors = [
+      'bg-red-500',
+      'bg-blue-500',
+      'bg-green-500',
+      'bg-yellow-500',
+      'bg-purple-500',
+      'bg-pink-500',
+      'bg-indigo-500',
+      'bg-orange-500'
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 space-y-12">
+      {/* صور وتفاصيل المشروع */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
           {project.coverImage ? (
@@ -41,7 +72,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
           ) : (
             <div className="w-full aspect-video bg-gray-200 rounded-lg" />
           )}
-          
+
           {project.images && project.images.length > 0 && (
             <div className="grid grid-cols-4 gap-2">
               {project.images.map((image) => (
@@ -61,47 +92,110 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
           <div>
             <h1 className="text-3xl font-bold">{project.title}</h1>
             {project.description && (
-              <p className="text-gray-600 mt-2">{project.description}</p>
+              <p className="text-muted-foreground mt-2 text-sm">{project.description}</p>
             )}
           </div>
 
-          <DonationProgress 
+          <DonationProgress
             currentAmount={project.currentAmount}
             targetAmount={project.targetAmount || 0}
           />
-
-          {project.content && (
-            <div 
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{ __html: project.content }} 
-            />
-          )}
         </div>
       </div>
 
+      {/* محتوى المشروع */}
+      <div className="prose prose-lg dark:prose-invert w-full">
+        {project.content && (
+          <div
+            className="w-full"
+            dangerouslySetInnerHTML={{ __html: project.content }}
+          />
+        )}
+      </div>
+
+      <div className={` ${!isProjectCompleted ? "flex-row" : "flex-col"} flex justify-center gap-6`}>
+
+        <div className="w-full">
+
+      
+      {/* نموذج التبرع */}
       {!isProjectCompleted ? (
-        <DonationForm 
+        <DonationForm
           selectedProject={{
             id: project.id,
             title: project.title
-          }} 
+          }}
           className="max-w-xl mx-auto"
         />
       ) : (
-        <div className="text-center py-8 bg-green-50 rounded-lg">
-          <p className="text-green-600 font-medium text-lg">
+        <div className="text-center py-8 bg-green-50 dark:bg-green-950 rounded-lg">
+          <p className="text-green-600 dark:text-green-400 font-medium text-lg">
             تم اكتمال التبرعات لهذا المشروع
-            {project.currentAmount > (project.targetAmount || 0) && 
+            {project.currentAmount > (project.targetAmount || 0) &&
               " وتم تجاوز المبلغ المستهدف"}
           </p>
         </div>
       )}
+        </div>
 
+      {/* قائمة المتبرعين */}
+      <div className="bg-muted/30 w-full rounded-lg py-6 px-4">
+        <h2 className="text-xl font-bold mb-6">المتبرعون ({project.donations.length})</h2>
+        <ScrollArea  className={` ${!isProjectCompleted ? "h-[630px]" : "h-auto max-h-[630px]"}  rounded-md border p-3`}>
+        <div className="space-y-4" dir="rtl">
+          {project.donations.length > 0 ? (
+            project.donations.map((donation) => (
+              <div
+                key={donation.id}
+                className="flex items-center gap-4 p-4 bg-background rounded-lg shadow-sm"
+              >
+                <Avatar className="h-12 w-12">
+                  <AvatarFallback className={`${getRandomColor()} text-white flex items-center justify-center`}>
+                    <User className="h-6 w-6" />
+                  </AvatarFallback>
+                </Avatar>
+
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">
+                      {donation.donor.anonymous ? "فاعل خير" : donation.donor.name}
+                    </p>
+                    <p className="font-bold text-primary">
+                      ${Number(donation.amount).toFixed(2)}
+                    </p>
+                  </div>
+                  {donation.message && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {donation.message}
+                    </p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(donation.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
+              </div>
+            
+            ))
+          ) : (
+            <p className="text-center text-muted-foreground">لا يوجد متبرعين حتى الآن</p>
+          )}
+        </div>
+          </ScrollArea>
+        
+      </div>
+
+      </div>
+
+      {/* المشاريع المشابهة */}
       {relatedProjects && relatedProjects.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">مشاريع أخرى قد تهمك</h2>
-          <ProjectsSlider 
-            projects={relatedProjects.filter(p => p.id !== project.id)} 
+          <ProjectsSlider
+            projects={relatedProjects.filter(p => p.id !== project.id)}
           />
         </div>
       )}

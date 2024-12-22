@@ -165,6 +165,7 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
             if (result.success) {
                 router.push('/admin/projects');
                 router.refresh();
+                setLoading(false);
             } else {
                 setError(result.error || 'حدث خطأ أثناء حفظ المشروع');
             }

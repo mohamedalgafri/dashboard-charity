@@ -65,7 +65,7 @@ async function main() {
 // بيانات الصفحات
 const pages = [
   {
-    title: 'About Us',
+    title: 'من نحن',
     slug: 'about-us',
     sections: [
       {

@@ -57,18 +57,38 @@ export const SettingSchema = z.object({
 
 ;
 
-export const NewPasswordSchema = z.object({
-    password:z.string().min(6,{
-        message:"Minimum 6 characters required"
-    }),
+
+export const DonationSchema = z.object({
+  projectId: z.coerce.number({
+    required_error: "اختيار المشروع مطلوب",
+    invalid_type_error: "يجب أن يكون رقماً",
+  }).positive("اختيار المشروع مطلوب"),
+
+  amount: z.coerce.number({
+    required_error: "قيمة التبرع مطلوبة",
+    invalid_type_error: "يجب أن يكون رقماً",
+  }).positive("يجب أن تكون قيمة التبرع أكبر من صفر"),
+
+  donorName: z.string({
+    required_error: "الاسم مطلوب",
+  }).min(2, "الاسم يجب أن يكون على الأقل حرفين"),
+
+  email: z.string({
+    required_error: "البريد الإلكتروني مطلوب",
+  }).email("البريد الإلكتروني غير صالح"),
+
+  phone: z.string({
+    required_error: "رقم الهاتف مطلوب",
+  }).min(9, "رقم الهاتف غير صالح")
+    .max(15, "رقم الهاتف غير صالح")
+    .regex(/^[0-9+]+$/, "رقم الهاتف يجب أن يحتوي على أرقام فقط"),
+
+  message: z.string().optional(),
+  
+  anonymous: z.boolean().default(false),
 });
 
-export const ResetSchema = z.object({
-    email: z.string().email({
-        message:"Email is required"
-    }),
-});
-
+export type DonationType = z.infer<typeof DonationSchema>;
 
 export const LoginSchema = z.object({
     email: z.string().email({
@@ -78,17 +98,5 @@ export const LoginSchema = z.object({
         message:"Password is required"
     }),
     code:z.optional(z.string())
-});
-
-export const RegisterSchema = z.object({
-    email: z.string().email({
-        message:"Email is required"
-    }),
-    password:z.string().min(6,{
-        message:"Minimum 6 characters required"
-    }),
-    name:z.string().min(1,{
-        message:"Name is required"
-    }),
 });
 
