@@ -20,7 +20,7 @@ const CardWrapper = ({
     showSocial,
 }:CardWrapperProps) => {
   return (
-    <div className="bg-white dark:bg-gray-700 w-[400px] shadow-md rounded-xl">
+    <div className="bg-white dark:bg-gray-900 w-[400px] shadow-md rounded-xl">
         <div className="p-5">
             <Header label={headerLabel} />
         </div>
@@ -34,11 +34,8 @@ const CardWrapper = ({
                 </div>
             )
         }
-        <div className="p-5">
-            <BackButton
-                label={backButtonLabel}
-                href={backButtonHref}
-            />
+        <div className="p-2">
+          
         </div>
     </div>
   )

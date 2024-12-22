@@ -233,32 +233,61 @@
 }
 
 
-.preview-content {
-  white-space: pre-wrap;
+/* /////////////////////////// */
+
+
+/* app/globals.css */
+/* تخصيص شكل أزرار التنقل */
+.swiper-button-next,
+.swiper-button-prev {
+  color: white !important;
+  background: rgba(0, 0, 0, 0.3);
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50%;
 }
-.preview-content p {
-  white-space: pre-wrap;
-  margin-bottom: 1px;
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 20px !important;
 }
-.preview-content div {
-  white-space: pre-wrap;
+
+/* تخصيص نقاط التنقل */
+.swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.7 !important;
 }
-.ql-align-center {
-  text-align: center;
+
+.swiper-pagination-bullet-active {
+  opacity: 1 !important;
 }
-.ql-align-right {
-  text-align: right;
+
+/* app/globals.css */
+.swiper-pagination-bullet {
+  background: white !important;
+  opacity: 0.7 !important;
 }
-.ql-align-left {
-  text-align: left;
+
+.swiper-pagination-bullet-active {
+  opacity: 1 !important;
 }
-.ql-align-justify {
-  text-align: justify;
+
+.home-header {
+  padding: 4rem 0;
 }
-.custom-html-content {
-  width: 100%;
-  overflow: hidden;
+
+.header-slider {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
 }
-.custom-html-content * {
-  max-width: 100%;
+
+@media (max-width: 768px) {
+  .header-slider {
+    flex-direction: column-reverse;
+  }
+  
+  .rightHeader, .leftHeader {
+    width: 100%;
+  }
 }
