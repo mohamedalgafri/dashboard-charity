@@ -31,11 +31,11 @@ import { MarketingConfig } from "@/types";
 
 const staticNav = [
   {
-    title: "Blog",
+    title: "المدونة",
     href: "/blog",
   },
   {
-    title: "Projects",
+    title: "المشاريع",
     href: "/projects",
   },
 ];

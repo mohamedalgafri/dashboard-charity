@@ -29,8 +29,6 @@ export function NavBar({ scroll = false, large = false, navItems }: NavBarProps)
   const selectedLayout = useSelectedLayoutSegment();
   const documentation = selectedLayout === "docs";
 
-
-
   return (
     <header
       className={cn(
@@ -71,9 +69,23 @@ export function NavBar({ scroll = false, large = false, navItems }: NavBarProps)
           )}
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3 space-x-3">
 
-          {session ? (
+          <Link
+            href={''}
+            className="hidden md:block"
+          >
+            <Button
+              className="gap-2 px-4"
+              variant="default"
+              size="sm"
+              rounded="xl"
+            >
+              <span>تبرع الأن</span>
+            </Button>
+          </Link>
+
+          {session && (
             <Link
               href={session.user.role === "ADMIN" ? "/admin" : "/dashboard"}
               className="hidden md:block"
@@ -84,18 +96,11 @@ export function NavBar({ scroll = false, large = false, navItems }: NavBarProps)
                 size="sm"
                 rounded="xl"
               >
-                <span>Dashboard</span>
+                <span>لوحة التحكم</span>
               </Button>
             </Link>
-          ) : status === "unauthenticated" ? (
-            <LoginButton mode="modal" asChild>
-              <Button variant="default">
-                Sign In
-              </Button>
-            </LoginButton>
-          ) : (
-            <Skeleton className="hidden h-9 w-24 rounded-xl lg:flex" />
           )}
+
         </div>
       </MaxWidthWrapper>
     </header>

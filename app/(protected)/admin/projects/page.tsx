@@ -18,10 +18,10 @@ export default async function ProjectsPage() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-bold">إدارة المشاريع</h1>
-        <Button asChild>
-          <Link href="/admin/projects/new">
-            <Plus className="ml-2 h-4 w-4" />
-            مشروع جديد
+        <Button >
+          <Link className="flex gap-1 items-center" href="/admin/projects/new">
+            <Plus className="mr-2 h-4 w-4" />
+            <span>مشروع جديد</span>
           </Link>
         </Button>
       </div>

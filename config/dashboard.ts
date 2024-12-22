@@ -4,55 +4,73 @@ import { SidebarNavItem } from "types";
 
 export const sidebarLinks: SidebarNavItem[] = [
   {
-    title: "MENU",
+    title: "",
     items: [
       {
         href: "/admin",
-        icon: "laptop",
-        title: "Admin Panel",
-        // authorizeOnly: UserRole.ADMIN,
+        icon: "dashboard",
+        title: "لوحة التحكم",
+        authorizeOnly: UserRole.ADMIN,
       },
-      { href: "/dashboard", icon: "dashboard", title: "Dashboard"},
-      { href: "/dashboard/charts", icon: "lineChart", title: "Charts" },
-      { href: "/admin/projects", icon: "package", title: "Projects" },
+      // { href: "/dashboard/charts", icon: "lineChart", title: "Charts" },
+    ],
+  },
+  {
+    title: "المشاريع",
+    items: [
       {
-        href: "/admin/orders",
+        href: "/admin/projects/new",
         icon: "package",
-        title: "Orders",
-        badge: 2,
+        title: "إنشاء مشروع",
         authorizeOnly: UserRole.ADMIN,
       },
       {
-        href: "/dashboard/posts",
-        icon: "post",
-        title: "User Posts",
-        authorizeOnly: UserRole.USER,
-        // disabled: true,
+        href: "/admin/projects",
+        icon: "package",
+        title: "المشاريع",
+        authorizeOnly: UserRole.ADMIN,
       },
     ],
   },
   {
-    title: "Pages",
+    title: "التبرعات والمتبرعين",
+    items: [
+      {
+        href: "/admin/donations",
+        icon: "post",
+        title: "التبرعات",
+        authorizeOnly: UserRole.ADMIN,
+      },
+      {
+        href: "/admin/donors",
+        icon: "post",
+        title: "المتبرعين",
+        authorizeOnly: UserRole.ADMIN,
+      }
+    ],
+  },
+  {
+    title: "الصفحات",
     items: [
       {
         href: "/admin/pages/create-page",
         icon: "post",
-        title: "Create Page",
-        authorizeOnly: UserRole.USER,
+        title: "إنشاء صفحة",
+        authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/pages",
         icon: "post",
-        title: "Pages",
-        authorizeOnly: UserRole.USER,
+        title: "الصفحات",
+        authorizeOnly: UserRole.ADMIN,
       },
     ],
   },
   {
-    title: "OPTIONS",
+    title: "خيارت",
     items: [
-      { href: "/dashboard/settings", icon: "settings", title: "Settings" },
-      { href: "/", icon: "home", title: "Homepage" },
+      { href: "/admin/settings", icon: "settings", title: "الاعدادات" },
+      { href: "/", icon: "home", title: "الموقع الخارجي" },
     ],
   },
 ];

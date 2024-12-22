@@ -5,112 +5,41 @@ import { LoginSchema } from "@/schemas";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/data/user";
-import { generateTwoFactorToken, generateVerificationToken } from "@/lib/tokens";
-import { sendTwoFactorTokenEmail, sendVerificationEmail } from "@/lib/mail";
-import { getTwoFactorTokenByEmail } from "@/data/two-factor-token";
-import { db } from "@/lib/db";
-import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation";
+import bcrypt from "bcryptjs";
 
+export const login = async (values: z.infer<typeof LoginSchema>) => {
+    try {
+        const validatedFields = LoginSchema.safeParse(values);
+        
+        if (!validatedFields.success) {
+            return { error: "بيانات غير صحيحة!" }
+        }
 
-export const login = async (
-    values: z.infer<typeof LoginSchema>,
-    callbackUrl?:string | null
-) => {
-    const validatedFields = LoginSchema.safeParse(values);
+        const { email, password } = validatedFields.data;
+        const existingUser = await getUserByEmail(email);
+        
+        if (!existingUser || !existingUser.email || !existingUser.password) {
+            return { error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" }
+        }
 
-    if (!validatedFields.success) {
-        return { error: "Invalid field!" }
-    }
+        if (existingUser.role !== "ADMIN") {
+            return { error: "غير مصرح لك بالدخول!" }
+        }
 
-    const { email, password, code } = validatedFields.data;
-
-    const existingUser = await getUserByEmail(email);
-    if (!existingUser || !existingUser.email || !existingUser.password) {
-        return { error: "Email does not exist!" }
-    }
-
-    if (!existingUser.emailVerified) {
-        const verficationToken = await generateVerificationToken(
-            existingUser.email
+        // التحقق من كلمة المرور
+        const passwordsMatch = await bcrypt.compare(
+            password,
+            existingUser.password
         );
 
-        await sendVerificationEmail(
-            verficationToken.email,
-            verficationToken.token,
-        )
-
-        return { success: "Confirmation email sent!" };
-    }
-
-    // TwoFactor
-    if (existingUser.isTwoFactorEnabled && existingUser.email) {
-        if (code) {
-            const twoFactorToken = await getTwoFactorTokenByEmail(
-                existingUser.email
-            )
-            if(!twoFactorToken){
-                return {error:"Invalid code!"}
-            }
-
-            if(twoFactorToken.token !== code){
-                return {error:"Invalid code!"}
-            }
-
-            const hasExpired = new Date(twoFactorToken.expires) < new Date();
-            if(hasExpired){
-                return {error:"Code expired!"}
-            }
-
-            await db.twoFactorToken.delete({
-                where:{id:twoFactorToken.id}
-            })
-
-            const existingConfirmation = await getTwoFactorConfirmationByUserId(
-                existingUser.id
-            )
-            
-            if(existingConfirmation){
-                await db.twoFactorConfirmation.delete({
-                    where:{id:existingConfirmation.id}
-                })
-            }
-            
-            await db.twoFactorConfirmation.create({
-                data:{
-                    userId:existingUser.id
-                }
-            })
-
-        } else {
-
-            const twoFactorToken = await generateTwoFactorToken(existingUser.email)
-            await sendTwoFactorTokenEmail(
-                twoFactorToken.email,
-                twoFactorToken.token
-            );
-
-            return { twoFactor: true }
+        if (!passwordsMatch) {
+            return { error: "البريد الإلكتروني أو كلمة المرور غير صحيحة" }
         }
 
-    }
-
-    try {
-        await signIn("credentials", {
-            email,
-            password,
-            redirectTo: callbackUrl || DEFAULT_LOGIN_REDIRECT,
-        })
+        // إذا كل شيء صحيح
+        return { success: true, email, password };
+        
     } catch (error) {
-        if (error instanceof AuthError) {
-            switch (error.type) {
-                case "CredentialsSignin":
-                    return { error: "Invalid credentials!" }
-                default:
-                    return { error: "Something went wrong!" }
-            }
-        }
-
-        throw error;
-
+        return { error: "حدث خطأ في عملية تسجيل الدخول!" }
     }
 };

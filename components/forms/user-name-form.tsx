@@ -59,12 +59,12 @@ export function UserNameForm({ user }: UserNameFormProps) {
   return (
     <form onSubmit={onSubmit}>
       <SectionColumns
-        title="Your Name"
-        description="Please enter a display name you are comfortable with."
+        title="اسم الحساب"
+        description="تعديل اسم الحساب"
       >
         <div className="flex w-full items-center gap-2">
           <Label className="sr-only" htmlFor="name">
-            Name
+            الأسم
           </Label>
           <Input
             id="name"
@@ -83,8 +83,8 @@ export function UserNameForm({ user }: UserNameFormProps) {
               <Icons.spinner className="size-4 animate-spin" />
             ) : (
               <p>
-                Save
-                <span className="hidden sm:inline-flex">&nbsp;Changes</span>
+                حفظ
+                <span className="hidden sm:inline-flex">&nbsp;التعديل</span>
               </p>
             )}
           </Button>

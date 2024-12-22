@@ -1,4 +1,3 @@
-// app/(protected)/admin/pages/data-table.tsx
 "use client";
 
 import * as React from "react";
@@ -43,6 +42,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [pageIndex, setPageIndex] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
 
   const table = useReactTable({
@@ -59,15 +59,31 @@ export function DataTable<TData, TValue>({
       columnFilters,
       pagination: {
         pageSize,
-        pageIndex: 0,
+        pageIndex,
       },
     },
+    onPaginationChange: (updater) => {
+      if (typeof updater === 'function') {
+        const newState = updater({
+          pageIndex,
+          pageSize,
+        });
+        setPageIndex(newState.pageIndex);
+        setPageSize(newState.pageSize);
+      }
+    },
   });
+
+  // حساب معلومات الصفحات
+  const totalRows = table.getFilteredRowModel().rows.length;
+  const totalPages = Math.ceil(totalRows / pageSize);
+  const startRow = pageIndex * pageSize + 1;
+  const endRow = Math.min((pageIndex + 1) * pageSize, totalRows);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        {/* Search Input */}
+        {/* حقل البحث */}
         <Input
           placeholder="بحث بالعنوان..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
@@ -77,12 +93,15 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
 
-        {/* Page Size Select */}
+        {/* اختيار عدد العناصر في الصفحة */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">عدد العناصر في الصفحة:</span>
+          <span className="text-sm text-gray-500">عناصر كل صفحة:</span>
           <Select
             value={pageSize.toString()}
-            onValueChange={(value) => setPageSize(Number(value))}
+            onValueChange={(value) => {
+              setPageSize(Number(value));
+              setPageIndex(0); // إعادة التعيين للصفحة الأولى عند تغيير عدد العناصر
+            }}
           >
             <SelectTrigger className="w-[100px]">
               <SelectValue placeholder={pageSize} />
@@ -98,14 +117,14 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
-      {/* Table */}
+      {/* الجدول */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead key={header.id} className="text-right">
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -148,12 +167,17 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      {/* Pagination */}
+      {/* الترقيم والتصفح */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-gray-500">
-          إجمالي النتائج: {table.getFilteredRowModel().rows.length}
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <span>النتائج: {totalRows}</span>
+          <span>|</span>
+          <span>
+            {totalRows > 0 ? `${startRow}-${endRow}` : '0'} من {totalRows}
+          </span>
         </div>
-        <div className="flex items-center space-x-2 space-x-reverse">
+        
+        <div className="flex items-center gap-2 text-sm">
           <Button
             variant="outline"
             size="sm"
@@ -162,6 +186,14 @@ export function DataTable<TData, TValue>({
           >
             السابق
           </Button>
+          
+          <span className="px-2">
+            صفحة{' '}
+            <strong>
+              {pageIndex + 1} من {totalPages}
+            </strong>
+          </span>
+          
           <Button
             variant="outline"
             size="sm"
@@ -170,6 +202,7 @@ export function DataTable<TData, TValue>({
           >
             التالي
           </Button>
+    
         </div>
       </div>
     </div>

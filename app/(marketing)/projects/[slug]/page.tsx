@@ -1,57 +1,52 @@
-// pages/projects/[slug].tsx
-import { DonationForm } from '@/components/forms/DonationForm';
-import { ProjectProgress } from '@/components/forms/ProjectProgress';
-import { GetStaticProps, GetStaticPaths } from 'next';
+// app/(marketing)/projects/[slug]/page.tsx
+import { getProject, getRelatedProjects } from "@/actions/project";
+import ProjectDetails from "@/components/content/ProjectDetails";
+import { db } from "@/lib/db";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
-import dynamic from 'next/dynamic';
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
 
-const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
+export const revalidate = 6;
 
-export default function ProjectPage({ project }) {
+export default async function ProjectPage({ params }: PageProps) {
+  if (!params.slug) {
+    notFound();
+  }
+
+  const project = await getProject(params.slug);
+  
+  if (!project) {
+    notFound();
+  }
+
+  const relatedProjects = await getRelatedProjects(params.slug);
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className="md:col-span-2">
-          <h1 className="text-3xl font-bold mb-4">{project.title}</h1>
-          
-          <div className="mb-6">
-            <img 
-              src={project.coverImage} 
-              alt={project.title}
-              className="w-full rounded-lg"
-            />
-          </div>
-          
-          <ProjectProgress
-            currentAmount={project.currentAmount}
-            targetAmount={project.targetAmount}
-          />
-          
-          <div className="prose max-w-none mt-8">
-            <Editor
-              value={project.content}
-              readOnly
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            {project.images.map((image) => (
-              <img
-                key={image.id}
-                src={image.url}
-                alt=""
-                className="rounded-lg"
-              />
-            ))}
-          </div>
-        </div>
-        
-        <div className="md:col-span-1">
-          <div className="sticky top-8">
-            <DonationForm projectId={project.id} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <Suspense fallback={<div>جاري التحميل...</div>}>
+      <ProjectDetails 
+        project={project}
+        relatedProjects={relatedProjects}
+      />
+    </Suspense>
   );
+}
+
+export async function generateStaticParams() {
+  try {
+    const projects = await db.project.findMany({
+      where: { isPublished: true },
+      select: { slug: true },
+    });
+    return projects.map((project) => ({
+      slug: project.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }

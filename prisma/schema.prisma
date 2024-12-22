@@ -13,76 +13,86 @@ enum UserRole {
 }
 
 model User {
-  id                    String                 @id @default(cuid())
-  name                  String?
-  email                 String                 @unique
-  emailVerified         DateTime?
-  image                 String?
-  password              String?
-  accounts              Account[]
-  role                  UserRole               @default(USER)
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  isTwoFactorEnabled    Boolean                @default(false)
-  twoFactorConfirmation TwoFactorConfirmation?
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  role          UserRole  @default(ADMIN)  // تغيير القيمة الافتراضية إلى ADMIN
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
-model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+// model User {
+//   id                    String                 @id @default(cuid())
+//   name                  String?
+//   email                 String                 @unique
+//   emailVerified         DateTime?
+//   image                 String?
+//   password              String?
+//   accounts              Account[]
+//   role                  UserRole               @default(USER)
+//   createdAt             DateTime               @default(now())
+//   updatedAt             DateTime               @updatedAt
+//   isTwoFactorEnabled    Boolean                @default(false)
+//   twoFactorConfirmation TwoFactorConfirmation?
+// }
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+// model Account {
+//   userId            String
+//   type              String
+//   provider          String
+//   providerAccountId String  @map("provider_account_id")
+//   refresh_token     String?
+//   access_token      String?
+//   expires_at        Int?
+//   token_type        String?
+//   scope             String?
+//   id_token          String?
+//   session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
 
-  @@id([provider, providerAccountId])
-}
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-model VerificationToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+//   @@id([provider, providerAccountId])
+// }
 
-  @@unique([email, token])
-}
+// model VerificationToken {
+//   id      String   @id @default(cuid())
+//   email   String
+//   token   String   @unique
+//   expires DateTime
 
-model PasswordResetToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+//   @@unique([email, token])
+// }
 
-  @@unique([email, token])
-}
+// model PasswordResetToken {
+//   id      String   @id @default(cuid())
+//   email   String
+//   token   String   @unique
+//   expires DateTime
 
-model TwoFactorToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+//   @@unique([email, token])
+// }
 
-  @@unique([email, token])
-}
+// model TwoFactorToken {
+//   id      String   @id @default(cuid())
+//   email   String
+//   token   String   @unique
+//   expires DateTime
 
-model TwoFactorConfirmation {
-  id String @id @default(cuid())
+//   @@unique([email, token])
+// }
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+// model TwoFactorConfirmation {
+//   id String @id @default(cuid())
 
-  @@unique([userId])
-}
+//   userId String
+//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@unique([userId])
+// }
 
 
 model Page {
@@ -95,7 +105,7 @@ model Page {
   headerTitle String?   // عنوان الهيدر
   headerDescription String? @db.Text // وصف الهيدر
   showHeader  Boolean?  @default(false)
-  isPublished Boolean  @default(false)
+  isPublished Boolean  @default(true)
   publishedAt DateTime?
   sections    Section[]
   createdBy   String?
@@ -135,6 +145,7 @@ model Input {
   @@index([sectionId])
 }
 
+
 model Project {
   id              Int       @id @default(autoincrement())
   title           String    
@@ -148,7 +159,7 @@ model Project {
   coverImage      String?   
   isPublished     Boolean   @default(false)
   images          ProjectImage[]
-  donations       Donation[] // إضافة العلاقة العكسية
+  donations       Donation[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -165,19 +176,32 @@ model ProjectImage {
   createdAt   DateTime  @default(now())
 }
 
+model Donor {
+  id          Int         @id @default(autoincrement())
+  name        String
+  email       String?     @unique
+  phone       String?     @unique
+  anonymous   Boolean     @default(false)
+  donations   Donation[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([email])
+  @@index([phone])
+}
+
 model Donation {
   id          Int       @id @default(autoincrement())
   amount      Float
   projectId   Int
   project     Project   @relation(fields: [projectId], references: [id])
-  donorName   String    // اسم المتبرع
-  email       String?   // البريد الإلكتروني (اختياري)
-  phone       String?   // رقم الهاتف (اختياري)
+  donorId     Int
+  donor       Donor     @relation(fields: [donorId], references: [id])
   status      String    @default("pending") // pending, completed, failed
-  anonymous   Boolean   @default(false) // هل يريد إخفاء اسمه؟
-  message     String?   @db.Text // رسالة من المتبرع (اختياري)
+  message     String?   @db.Text
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@index([projectId, status])
+  @@index([donorId])
 }

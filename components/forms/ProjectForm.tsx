@@ -5,7 +5,8 @@ import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { TextEditor } from './TextEditor';
 import { ImageUploader } from './ImageUploader';
-import { createProject, updateProject } from '@/actions/project';
+import { createProject, deleteProject, updateProject } from '@/actions/project';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface ProjectFormProps {
     initialData?: any;
@@ -21,6 +22,7 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
     const [content, setContent] = useState(initialData?.content || '');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [deleteLoading, setDeleteLoading] = useState(false);
 
     // صورة الغلاف
     const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
@@ -174,6 +176,27 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
         }
     }
 
+    const handleDelete = async () => {
+        if (!initialData?.id) return;
+        
+        setDeleteLoading(true);
+        try {
+            const result = await deleteProject(Number(initialData.id));
+            
+            if (result.success) {
+                router.push('/admin/projects');
+                router.refresh();
+            } else {
+                setError(result.message || 'حدث خطأ أثناء حذف المشروع');
+            }
+        } catch (err: any) {
+            console.error('Error deleting project:', err);
+            setError(typeof err === 'string' ? err : err.message || 'حدث خطأ غير متوقع أثناء الحذف');
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+   
     return (
         <form
             onSubmit={async (e) => {
@@ -285,38 +308,76 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
                 <TextEditor
                     value={content}
                     onChange={setContent}
-                    disabled={loading}
+                    // disabled={loading}
                 />
             </div>
 
-            {/* أزرار التحكم */}
-            <div className="flex items-center gap-4">
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 focus:ring-2 focus:ring-blue-500"
-                >
-                    {loading ? (
-                        <div className="flex items-center gap-2">
-                            <span className="size-5 border-y-2 border-white rounded-full animate-spin"></span>
-                            جاري الحفظ...
-                        </div>
-                    ) : (
-                        isEditing ? "تحديث المشروع" : "حفظ المشروع"
-                    )}
-                </button>
-
-                <label className="flex items-center gap-2">
-                    <input
-                        type="checkbox"
-                        name="isPublished"
-                        defaultChecked={initialData?.isPublished}
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button
+                        type="submit"
                         disabled={loading}
-                        className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
-                    />
-                    <span className="text-gray-700">نشر المشروع</span>
-                </label>
+                        className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 focus:ring-2 focus:ring-blue-500"
+                    >
+                        {loading ? (
+                            <div className="flex items-center gap-2">
+                                <span className="size-5 border-y-2 border-white rounded-full animate-spin"></span>
+                                جاري الحفظ...
+                            </div>
+                        ) : (
+                            isEditing ? "تحديث المشروع" : "حفظ المشروع"
+                        )}
+                    </button>
+
+                    <label className="flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            name="isPublished"
+                            defaultChecked={initialData?.isPublished}
+                            disabled={loading}
+                            className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500"
+                        />
+                        <span className="text-gray-700">نشر المشروع</span>
+                    </label>
+                </div>
+
+                {isEditing && (
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <button
+                                type="button"
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 focus:ring-2 focus:ring-red-500"
+                                disabled={deleteLoading}
+                            >
+                                {deleteLoading ? 'جاري الحذف...' : 'حذف المشروع'}
+                            </button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>تأكيد حذف المشروع</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    هل أنت متأكد من حذف هذا المشروع؟ هذا الإجراء لا يمكن التراجع عنه.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                                <AlertDialogAction 
+                                    onClick={handleDelete}
+                                    className="bg-red-600 hover:bg-red-700 focus:ring-red-500"
+                                >
+                                    تأكيد الحذف
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                )}
             </div>
+
+            {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+                    {error}
+                </div>
+            )}
         </form>
     );
 }

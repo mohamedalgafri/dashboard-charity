@@ -1,47 +1,48 @@
 import bcrypt from "bcryptjs";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-
 import { LoginSchema } from "@/schemas";
-import Google from "next-auth/providers/google";
-import Github from "next-auth/providers/github";
-// import Resend from "next-auth/providers/resend";
 import { getUserByEmail } from "./data/user";
 
-
-
-
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
-    
     providers: [
-        Google({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        }),
-        Github({
-            clientId: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET,
-          }),
         Credentials({
-            async authorize(credentials){
-                const validatedFields = LoginSchema.safeParse(credentials);
+            async authorize(credentials) {
+                try {
+                    const validatedFields = LoginSchema.safeParse(credentials);
+                    
+                    if (!validatedFields.success) {
+                        return null;
+                    }
 
-                if(validatedFields.success){
-                    const { email,password } = validatedFields.data;
-
+                    const { email, password } = validatedFields.data;
+                    
                     const user = await getUserByEmail(email);
-                    if(!user || !user.password) return null;
-
+                    if (!user || !user.password) return null;
+                    
                     const passwordsMatch = await bcrypt.compare(
                         password,
-                        user.password,
+                        user.password
                     );
 
-                    if(passwordsMatch) return user;
-                }
+                    if (passwordsMatch) {
+                     
+                        
+                        return {
+                            id: user.id,
+                            name: user.name,
+                            email: user.email,
+                            role: user.role
+                        };
+                    }
 
-                return null;
+                    return null;
+                } catch (error) {
+                    console.error("Auth error:", error);
+                    return null;
+                }
             }
-        })    
+        })
     ],
-} satisfies NextAuthConfig;
+}

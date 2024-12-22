@@ -5,8 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import type { PageFormProps } from "@/types/form-types";
 
 export function BasicInfoSection({ form, isLoading }: PageFormProps) {
-  const { register, formState: { errors } } = form;
-
+  const { register,setValue,watch, formState: { errors } } = form;
   return (
     <div className="space-y-6 rounded-lg p-6">
       <h3 className="text-lg font-semibold">المعلومات الأساسية</h3>
@@ -26,10 +25,12 @@ export function BasicInfoSection({ form, isLoading }: PageFormProps) {
 
       <div className="flex items-center gap-3">
         <Switch
-          id="is-published"
+          id="isPublished"
+          checked={watch("isPublished")}
+          onCheckedChange={(checked) => setValue("isPublished", checked)}
           {...register("isPublished")}
         />
-        <label htmlFor="is-published" className="text-sm font-medium">
+        <label htmlFor="isPublished" className="text-sm font-medium">
           نشر الصفحة
         </label>
       </div>

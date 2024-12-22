@@ -64,6 +64,7 @@ const config = {
         sans: ["var(--font-sans)", ...fontFamily.sans],
         heading: ["var(--font-heading)", ...fontFamily.sans],
         satoshi: ["var(--font-satoshi)", ...fontFamily.sans],
+        arabic: ['var(--font-arabic)'],
       },
       keyframes: {
         "accordion-down": {

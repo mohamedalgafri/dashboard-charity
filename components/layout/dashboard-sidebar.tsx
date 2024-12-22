@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import ProjectSwitcher from "@/components/dashboard/project-switcher";
 import { Icons } from "@/components/shared/icons";
+import { LogoutButton } from "../auth/logout-button";
 
 interface DashboardSidebarProps {
   links: SidebarNavItem[];
@@ -71,12 +72,21 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
           >
             <div className="flex h-full max-h-screen flex-1 flex-col gap-2">
               <div className="flex h-14 items-center p-4 lg:h-[60px] rtl:flex-row-reverse">
-                {isSidebarExpanded ? <ProjectSwitcher /> : null}
+                {isSidebarExpanded ? 
+                
+                <Link href="/" className="flex items-center space-x-1.5">
+                  <Icons.logo />
+                  <span className="font-satoshi text-lg font-bold">
+                    {siteConfig.name}
+                  </span>
+                </Link>  
+
+                : null}
 
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="ml-auto size-9 lg:size-8 rtl:mr-auto"
+                  className="ml-auto size-9 lg:size-8 rtl:ml-0 rtl:mr-auto"
                   onClick={toggleSidebar}
                 >
                   {isSidebarExpanded ? (
@@ -94,14 +104,14 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
                 </Button>
               </div>
 
-              <nav className="flex flex-1 flex-col gap-8 px-4 pt-4 rtl:text-end">
+              <nav className="flex flex-1 flex-col gap-4 px-4 pt-1 rtl:text-end">
                 {links.map((section) => (
                   <section
                     key={section.title}
                     className="flex flex-col gap-0.5"
                   >
                     {isSidebarExpanded ? (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs py-1 text-muted-foreground">
                         {section.title}
                       </p>
                     ) : (
@@ -165,7 +175,6 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
                   </section>
                 ))}
               </nav>
-
             </div>
           </aside>
         </ScrollArea>

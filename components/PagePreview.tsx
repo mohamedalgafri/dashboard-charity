@@ -139,7 +139,7 @@ export const PagePreview = ({
           }
           .preview-content p {
             white-space: pre-wrap;
-            margin-bottom: 1em;
+            margin-bottom: 1px;
           }
           .preview-content div {
             white-space: pre-wrap;

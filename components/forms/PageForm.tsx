@@ -31,7 +31,9 @@ export default function PageForm({ initialData, onSubmit, mode }: PageFormProps)
         title: "",
         description: "",
         showHeader: false,
-        isPublished: false,
+        headerTitle:"",
+        headerDescription: "",
+        isPublished: true,
         sections: [],
       },
     });

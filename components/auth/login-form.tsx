@@ -1,32 +1,21 @@
-"use client"
+"use client";
 
 import * as z from "zod";
-import { Suspense, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/schemas";
+import { signIn } from "next-auth/react";
 import CardWrapper from "./card-wrapper";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { FormError } from "../form-error";
-import { FormSuccess } from "../form-suceess";
 import { login } from "@/actions/login";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { BeatLoader } from "react-spinners";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 const LoginForm = () => {
-
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
-  const urlError = searchParams.get("error") === "OAuthAccountNotLinked"
-    ? "Email already in use with different provider!"
-    : "";
-
-  const [showTwoFactor, setShowTwoFactor] = useState(false);
   const [error, setError] = useState<string | undefined>("");
-  const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -35,38 +24,42 @@ const LoginForm = () => {
       email: "",
       password: "",
     }
-  })
+  });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    setError("")
-    setSuccess("")
+    setError("");
 
-    startTransition(() => {
-      login(values,callbackUrl).then((data) => {
-        if (data?.error) {
-          form.reset();
-          setError(data.error)
+    startTransition(async () => {
+      try {
+        // استخدام server action للتحقق
+        const result = await login(values);
+        
+        if (result?.error) {
+          setError(result.error);
+          return;
         }
-        if (data?.success) {
-          form.reset();
-          setSuccess(data.success)
+
+        // إذا نجح التحقق، قم بالتسجيل والتوجيه
+        if (result?.success) {
+          await signIn("credentials", {
+            email: result.email,
+            password: result.password,
+            redirect: true,
+            callbackUrl: DEFAULT_LOGIN_REDIRECT
+          });
         }
-        if (data?.twoFactor) {
-          setShowTwoFactor(true)
-        }
-      }).catch(() => setError("Something went wrong"));
-    })
-  }
+      } catch (error) {
+        setError("حدث خطأ في تسجيل الدخول!");
+      }
+    });
+};
 
   return (
-    <Suspense fallback={<BeatLoader />}>
-
-    
     <CardWrapper
-      headerLabel='Welcom back'
-      backButtonLabel='Dont have an account?'
-      backButtonHref='/auth/register'
-      showSocial
+      headerLabel="تسجيل الدخول"
+      backButtonLabel=""
+      backButtonHref=""
+      showSocial={false}
     >
       <Form {...form}>
         <form
@@ -74,91 +67,55 @@ const LoginForm = () => {
           className="space-y-6"
         >
           <div className="space-y-4">
-            {showTwoFactor && (
-              <FormField
+            <FormField
               control={form.control}
-              name="code"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Two Factor Code</FormLabel>
+                  <FormLabel>البريد الإلكتروني</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="123456"
                       disabled={isPending}
+                      placeholder="admin@example.com"
+                      type="email"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            )
-
-            }
-            { !showTwoFactor && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="JonDon@gmail.com"
-                          type="email"
-                          disabled={isPending}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="*********"
-                          type="password"
-                          disabled={isPending}
-                        />
-                      </FormControl>
-                      <Button
-                        size='sm'
-                        variant='link'
-                        className="px-0 font-normal"
-                      >
-                        <Link href="/auth/reset">
-                          Forgot password?
-                        </Link>
-                      </Button>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>)
-            }
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>كلمة المرور</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="••••••••"
+                      type="password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <FormError message={error || urlError} />
-          <FormSuccess message={success} />
+          {error && <FormError message={error} />}
           <Button
             type="submit"
             className="w-full"
             disabled={isPending}
           >
-            {showTwoFactor ? "Confirm" : "Login"}
+            {isPending ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
           </Button>
         </form>
       </Form>
     </CardWrapper>
-    </Suspense>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;

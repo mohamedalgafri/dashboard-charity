@@ -1,6 +1,5 @@
 import "@/styles/globals.css";
-
-import { fontHeading, fontSans, fontSatoshi } from "@/assets/fonts";
+import { fontArabic } from "@/assets/fonts";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 
@@ -19,14 +18,13 @@ export const metadata = constructMetadata();
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head />
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-          fontHeading.variable,
-          fontSatoshi.variable,
+          "min-h-screen bg-background antialiased",
+          fontArabic.variable,
+          "font-arabic" 
         )}
       >
         <SessionProvider>
@@ -37,13 +35,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
             disableTransitionOnChange
           >
             <ModalProvider>
-              {/* إضافة Suspense هنا */}
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<div>جاري التحميل...</div>}>
                 {children}
               </Suspense>
             </ModalProvider>
             <Analytics />
-            <Toaster richColors closeButton />
+            <Toaster richColors closeButton position="top-center" />
             <TailwindIndicator />
           </ThemeProvider>
         </SessionProvider>

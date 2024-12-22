@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { createSlug } from "@/utils/slugify";
 
 const InputSchema = z.object({
   label: z.string().optional(),
@@ -39,11 +40,12 @@ const AddPageSchema = z.object({
 export async function AddPage(data: z.infer<typeof AddPageSchema>) {
   try {
     const validatedData = AddPageSchema.parse(data);
+     const slug = createSlug(data.title);
 
     const page = await db.page.create({
       data: {
         title: validatedData.title,
-        slug: validatedData.title.toLowerCase().replace(/\s+/g, "-"),
+        slug: slug,
         description: validatedData.description,
         metaTitle: validatedData.metaTitle,
         metaDescription: validatedData.metaDescription,
@@ -195,6 +197,35 @@ export async function updatePagePublishStatus(pageId: number, isPublished: boole
       success: false,
       error: String(error),
       message: "فشل في تحديث حالة النشر"
+    };
+  }
+}
+
+export async function deletePage(pageId: number) {
+  try {
+    // حذف كل الأقسام والمدخلات المرتبطة بالصفحة
+    await db.section.deleteMany({
+      where: { pageId }
+    });
+
+    // حذف الصفحة
+    const page = await db.page.delete({
+      where: { id: pageId }
+    });
+
+    // تحديث الواجهة
+    revalidatePath("/admin/pages");
+    
+    return { 
+      success: true, 
+      message: "تم حذف الصفحة بنجاح"
+    };
+  } catch (error) {
+    console.error("خطأ في حذف الصفحة:", error);
+    return {
+      success: false,
+      error: String(error),
+      message: "فشل في حذف الصفحة"
     };
   }
 }

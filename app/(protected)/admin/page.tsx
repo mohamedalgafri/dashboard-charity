@@ -1,35 +1,49 @@
-import { redirect } from "next/navigation";
 
-import { getCurrentUser } from "@/lib/session";
+// app/dashboard/page.tsx
+import { Building2, Users2, Wallet, LineChart } from "lucide-react";
 import { constructMetadata } from "@/lib/utils";
 import { DashboardHeader } from "@/components/dashboard/header";
 import InfoCard from "@/components/dashboard/info-card";
-import TransactionsList from "@/components/dashboard/transactions-list";
+import { getDashboardStats } from "@/lib/analytics";
 
 export const metadata = constructMetadata({
-  title: "Admin – Next Template",
-  description: "Admin page for only admin management.",
+  title: "لوحة التحكم - المنصة",
+  description: "صفحة إدارة المنصة.",
 });
 
 export default async function AdminPage() {
-  const user = await getCurrentUser();
-  // if (!user || user.role !== "ADMIN") redirect("/login");
+  const stats = await getDashboardStats();
 
   return (
     <>
-      <DashboardHeader
-        heading="Admin Panel"
-        text="Access only for users with ADMIN role."
-      />
+      <DashboardHeader heading="لوحة التحكم" text="" />
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <InfoCard />
-          <InfoCard />
-          <InfoCard />
-          <InfoCard />
+          <InfoCard
+            title="المشاريع"
+            value={stats.projectsCount}
+            icon={Building2}
+            description="إجمالي عدد المشاريع"
+          />
+          <InfoCard
+            title="المتبرعين"
+            value={stats.donorsCount}
+            icon={Users2}
+            description="إجمالي عدد المتبرعين"
+          />
+          <InfoCard
+            title="التبرعات"
+            value={`${stats.totalDonations.toLocaleString()} $`}
+            icon={Wallet}
+            description="إجمالي مبالغ التبرعات"
+          />
+          <InfoCard
+            title="التبرعات المكتملة"
+            value={stats.completedDonationsCount}
+            icon={LineChart}
+            description="عدد التبرعات المكتملة"
+          />
         </div>
-        <TransactionsList />
-        <TransactionsList />
       </div>
     </>
   );

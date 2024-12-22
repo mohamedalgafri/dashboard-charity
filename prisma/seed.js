@@ -1,74 +1,94 @@
-
 const { PrismaClient } = require('@prisma/client');
-
-const slugify = require('slugify');
+const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
+async function main() {
+  console.log("Seeding admin user...");
+  
+  try {
+    // حذف المستخدم القديم إذا وجد
+    await prisma.user.deleteMany();
+
+    // إنشاء كلمة مرور مشفرة
+    const hashedPassword = await bcrypt.hash("123456", 10);
+
+    // إنشاء مستخدم المدير
+    const adminUser = await prisma.user.create({
+      data: {
+        name: "Admin",
+        email: "admin@example.com",
+        password: hashedPassword,
+        role: "ADMIN",
+      }
+    });
+
+    console.log('Created admin user:', adminUser);
+
+    // بدء عملية seed للصفحات
+    console.log("Clearing existing pages data...");
+    await prisma.input.deleteMany();
+    await prisma.section.deleteMany();
+    await prisma.page.deleteMany();
+
+    console.log("Seeding pages...");
+    // إضافة الصفحات
+    for (const pageData of pages) {
+      const page = await prisma.page.create({
+        data: {
+          title: pageData.title,
+          slug: pageData.slug,
+          sections: {
+            create: pageData.sections.map(section => ({
+              title: section.title,
+              inputs: {
+                create: section.inputs.map(input => ({
+                  label: input.label,
+                  type: input.type,
+                  value: input.value || ""
+                }))
+              }
+            }))
+          }
+        }
+      });
+
+      console.log('Seeded Page:', page);
+    }
+
+  } catch (error) {
+    console.error('Error seeding data:', error);
+    process.exit(1);
+  }
+}
+
+// بيانات الصفحات
 const pages = [
   {
     title: 'About Us',
-    slug: slugify('About Us', { lower: true }),
+    slug: 'about-us',
     sections: [
       {
         title: 'Introduction',
         inputs: [
-          { label: 'Mission Statement', type: 'text', value: 'Our mission is to serve.' },
-          { label: 'Company History', type: 'textarea', value: 'Founded in 2020.' }
+          { label: 'content', type: 'editor', value: 'Our mission is to serve.' },
         ]
       }
     ]
   },
   {
     title: 'Contact',
-    slug: slugify('Contact', { lower: true }),
+    slug: 'contact',
     sections: [
       {
-        title: 'Contact Form',
+        title: 'Contact Information',
         inputs: [
-          { label: 'Name', type: 'text', value: '' },
-          { label: 'Email', type: 'email', value: '' },
-          { label: 'Message', type: 'textarea', value: '' }
+          { label: 'content', type: 'editor', value: 'Contact us at...' },
         ]
       }
     ]
   }
 ];
-
-async function main() {
-  console.log("Clearing existing data...");
-
-  // حذف البيانات بترتيب صحيح
-  await prisma.input.deleteMany();
-  await prisma.section.deleteMany();
-  await prisma.page.deleteMany();
-
-  console.log("Seeding new data...");
-
-  // إضافة الصفحات الجديدة
-  for (const pageData of pages) {
-    const page = await prisma.page.create({
-      data: {
-        title: pageData.title,
-        slug: pageData.slug,
-        sections: {
-          create: pageData.sections.map(section => ({
-            title: section.title,
-            inputs: {
-              create: section.inputs.map(input => ({
-                label: input.label,
-                type: input.type,
-                value: input.value || "" // إضافة value مع التحقق من وجودها
-              }))
-            }
-          }))
-        }
-      }
-    });
-
-    console.log('Seeded Page:', page);
-  }
-}
 
 main()
   .catch((e) => {

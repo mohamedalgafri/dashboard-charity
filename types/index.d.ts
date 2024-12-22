@@ -80,3 +80,44 @@ export type SidebarNavItem = {
   icon?: keyof typeof Icons;
 };
 
+
+// types/project.ts
+export interface Project {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string;
+  content?: string;
+  coverImage?: string;
+  targetAmount?: number;
+  currentAmount: number;
+  startDate: Date;
+  endDate?: Date;
+  isPublished: boolean;
+  images: ProjectImage[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProjectImage {
+  id: number;
+  url: string;
+  publicId: string | null;
+  projectId: number;
+  order: number | null;
+  createdAt: Date;
+}
+
+export interface Donation {
+  id: number;
+  amount: number;
+  projectId: number;
+  donorName: string;
+  email: string | null;
+  phone: string | null;
+  status: 'pending' | 'completed' | 'failed';
+  anonymous: boolean;
+  message: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
