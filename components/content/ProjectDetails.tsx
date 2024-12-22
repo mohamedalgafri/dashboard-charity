@@ -113,7 +113,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
         )}
       </div>
 
-      <div className={` ${!isProjectCompleted ? "flex-row" : "flex-col"} flex justify-center gap-6`}>
+      <div className={` ${!isProjectCompleted ? "flex-row" : "flex-col"} flex md:flex-col justify-center gap-6`}>
 
         <div className="w-full">
 
