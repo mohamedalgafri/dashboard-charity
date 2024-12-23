@@ -71,7 +71,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
 
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold">{project.title}</h1>
+            <h1 className="text-xl lg:text-2xl font-bold">{project.title}</h1>
             {project.description && (
               <p className="text-muted-foreground mt-2 text-sm">{project.description}</p>
             )}

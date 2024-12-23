@@ -7,7 +7,8 @@ export default function ProjectLayout({
 }) {
   return (
     <>
-      <MaxWidthWrapper className="pb-16">{children}</MaxWidthWrapper>
+      {/* <MaxWidthWrapper className="pb-16">{children}</MaxWidthWrapper> */}
+      {children}
     </>
   );
 }

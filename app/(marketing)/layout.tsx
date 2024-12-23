@@ -18,7 +18,7 @@ export default async function MarketingLayout({ children }: DocsLayoutProps) {
     <div className="flex flex-col " dir="rtl">
       <NavMobile navItems={navItems} />
       <NavBar navItems={navItems} />
-      <MaxWidthWrapper className="min-h-screen" large>
+      <MaxWidthWrapper className="min-h-screen" >
         {children}
       </MaxWidthWrapper>
       <SiteFooter className="border-t" />

@@ -42,7 +42,7 @@ export function SiteFooter({ className }: React.HTMLAttributes<HTMLElement>) {
             Copyright &copy; 2024. All rights reserved.
           </span> */}
           <p className="text-left text-sm text-muted-foreground">
-            مؤسسة 
+            مؤسسة العطاء 
           </p>
 
           <div className="flex items-center gap-3">
