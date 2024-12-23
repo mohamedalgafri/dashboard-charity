@@ -5,6 +5,7 @@ import DonationProgress from "./DonationProgress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area"
+import ProjectGallery from "./ProjectGallery";
 
 interface ProjectWithImages extends Project {
   images: {
@@ -61,31 +62,11 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
       {/* صور وتفاصيل المشروع */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
-          {project.coverImage ? (
-            <div className="relative aspect-video">
-              <img
-                src={project.coverImage}
-                alt={project.title}
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
-          ) : (
-            <div className="w-full aspect-video bg-gray-200 rounded-lg" />
-          )}
-
-          {project.images && project.images.length > 0 && (
-            <div className="grid grid-cols-4 gap-2">
-              {project.images.map((image) => (
-                <div key={image.id} className="relative aspect-square">
-                  <img
-                    src={image.url}
-                    alt={`صورة إضافية للمشروع ${project.title}`}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          <ProjectGallery
+            coverImage={project.coverImage}
+            images={project.images}
+            title={project.title}
+          />
         </div>
 
         <div className="space-y-6">
@@ -103,6 +84,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
         </div>
       </div>
 
+
       {/* محتوى المشروع */}
       <div className="prose prose-lg dark:prose-invert w-full">
         {project.content && (
@@ -117,76 +99,76 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
 
         <div className="w-full">
 
-      
-      {/* نموذج التبرع */}
-      {!isProjectCompleted ? (
-        <DonationForm
-          selectedProject={{
-            id: project.id,
-            title: project.title
-          }}
-          className="max-w-xl mx-auto"
-        />
-      ) : (
-        <div className="text-center py-8 bg-green-50 dark:bg-green-950 rounded-lg">
-          <p className="text-green-600 dark:text-green-400 font-medium text-lg">
-            تم اكتمال التبرعات لهذا المشروع
-            {project.currentAmount > (project.targetAmount || 0) &&
-              " وتم تجاوز المبلغ المستهدف"}
-          </p>
-        </div>
-      )}
-        </div>
 
-      {/* قائمة المتبرعين */}
-      <div className="bg-muted/30 w-full rounded-lg py-6 px-4">
-        <h2 className="text-xl font-bold mb-6">المتبرعون ({project.donations.length})</h2>
-        <ScrollArea  className={` ${!isProjectCompleted ? "h-[630px]" : "h-auto max-h-[630px]"}  rounded-md border p-3`}>
-        <div className="space-y-4" dir="rtl">
-          {project.donations.length > 0 ? (
-            project.donations.map((donation) => (
-              <div
-                key={donation.id}
-                className="flex items-center gap-4 p-4 bg-background rounded-lg shadow-sm"
-              >
-                <Avatar className="h-12 w-12">
-                  <AvatarFallback className={`${getRandomColor()} text-white flex items-center justify-center`}>
-                    <User className="h-6 w-6" />
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">
-                      {donation.donor.anonymous ? "فاعل خير" : donation.donor.name}
-                    </p>
-                    <p className="font-bold text-primary">
-                      ${Number(donation.amount).toFixed(2)}
-                    </p>
-                  </div>
-                  {donation.message && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {donation.message}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {new Date(donation.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
-                </div>
-              </div>
-            
-            ))
+          {/* نموذج التبرع */}
+          {!isProjectCompleted ? (
+            <DonationForm
+              selectedProject={{
+                id: project.id,
+                title: project.title
+              }}
+              className="max-w-xl mx-auto"
+            />
           ) : (
-            <p className="text-center text-muted-foreground">لا يوجد متبرعين حتى الآن</p>
+            <div className="text-center py-8 bg-green-50 dark:bg-green-950 rounded-lg">
+              <p className="text-green-600 dark:text-green-400 font-medium text-lg">
+                تم اكتمال التبرعات لهذا المشروع
+                {project.currentAmount > (project.targetAmount || 0) &&
+                  " وتم تجاوز المبلغ المستهدف"}
+              </p>
+            </div>
           )}
         </div>
+
+        {/* قائمة المتبرعين */}
+        <div className="bg-muted/30 w-full rounded-lg py-6 px-4">
+          <h2 className="text-xl font-bold mb-6">المتبرعون ({project.donations.length})</h2>
+          <ScrollArea className={` ${!isProjectCompleted ? "h-[630px]" : "h-auto max-h-[630px]"}  rounded-md border p-3`}>
+            <div className="space-y-4" dir="rtl">
+              {project.donations.length > 0 ? (
+                project.donations.map((donation) => (
+                  <div
+                    key={donation.id}
+                    className="flex items-center gap-4 p-4 bg-background rounded-lg shadow-sm"
+                  >
+                    <Avatar className="h-12 w-12">
+                      <AvatarFallback className={`${getRandomColor()} text-white flex items-center justify-center`}>
+                        <User className="h-6 w-6" />
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-medium">
+                          {donation.donor.anonymous ? "فاعل خير" : donation.donor.name}
+                        </p>
+                        <p className="font-bold text-primary">
+                          ${Number(donation.amount).toFixed(2)}
+                        </p>
+                      </div>
+                      {donation.message && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {donation.message}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(donation.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground">لا يوجد متبرعين حتى الآن</p>
+              )}
+            </div>
           </ScrollArea>
-        
-      </div>
+
+        </div>
 
       </div>
 
