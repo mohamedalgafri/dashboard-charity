@@ -12,7 +12,6 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const folder = formData.get("folder")?.toString() || "default";
 
     if (!file) {
       return NextResponse.json(
@@ -24,40 +23,27 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // تعيين timeout أطول وإضافة خيارات إضافية
-    const result: any = await new Promise((resolve, reject) => {
+    const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder: `pages/${folder}`,
+          folder: "site-content",
           resource_type: "auto",
-          timeout: 60000, // زيادة التايم اوت إلى 60 ثانية
-          chunk_size: 6000000, // تحديد حجم القطع
         },
         (error, result) => {
-          if (error) {
-            console.error("Cloudinary upload error:", error);
-            reject(error);
-          } else {
-            resolve(result);
-          }
+          if (error) reject(error);
+          else resolve(result);
         }
       );
 
       uploadStream.end(buffer);
     });
 
-    return NextResponse.json({
-      url: result.secure_url,
-      publicId: result.public_id
-    });
+    return NextResponse.json(result);
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("خطأ في رفع الملف:", error);
     return NextResponse.json(
-      { 
-        error: error.message || "فشل في رفع الملف",
-        details: error 
-      },
+      { error: "فشل في رفع الملف" },
       { status: 500 }
     );
   }

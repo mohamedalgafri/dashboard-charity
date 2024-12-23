@@ -1,208 +1,221 @@
-// components/forms/SectionItem.tsx
 "use client";
 
-import Image from "next/image";
-import { UseFormReturn } from "react-hook-form";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { TextEditor } from "@/components/forms/TextEditor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
-
-import type { FormSchema, LayoutType } from "@/types/form-types";
-import { TextEditor } from "./TextEditor";
-import { LAYOUT_TYPES } from "@/types/form-types";
+import { Switch } from "@/components/ui/switch";
+import { useUpload } from "@/hooks/useUpload";
+import Image from "next/image";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface SectionItemProps {
-    index: number;
-    form: UseFormReturn<FormSchema>;
-    onRemove: () => void;
-    isLoading: boolean;
+  index: number;
+  form: any;
+  onRemove: () => void;
+  isLoading: boolean;
 }
 
 export function SectionItem({ index, form, onRemove, isLoading }: SectionItemProps) {
-    const { register, watch, setValue } = form;
+  const { register, setValue, getValues } = form;
+  const { uploadFile, isUploading } = useUpload({
+    path: 'pages',
+    maxSize: 5,
+    acceptedTypes: ['image/jpeg', 'image/png', 'image/webp']
+  });
 
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            try {
-                const previewUrl = URL.createObjectURL(file);
-                setValue(`sections.${index}`, {
-                    ...form.getValues(`sections.${index}`),
-                    image: previewUrl,
-                    imageFile: file
-                  });
-            } catch (error) {
-                console.error("Error handling image:", error);
-            }
-        }
-    };
+  const currentImage = getValues(`sections.${index}.image`);
+  const [imagePreview, setImagePreview] = useState<string | null>(currentImage || null);
 
-    return (
-        <div className="border rounded-lg p-6 relative hover:border-blue-200 transition-colors">
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // إنشاء معاينة مؤقتة فقط
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+
+      // حفظ الملف والمعاينة في النموذج
+      setValue(`sections.${index}`, {
+        ...getValues(`sections.${index}`),
+        image: previewUrl,
+        imageFile: file // نحتفظ بالملف للرفع لاحقاً
+      }, { 
+        shouldValidate: true,
+        shouldDirty: true 
+      });
+    } catch (error) {
+      console.error("Error handling image:", error);
+      toast.error("حدث خطأ في معالجة الصورة");
+    }
+  };
+
+  
+  const handleRemoveImage = () => {
+    setValue(`sections.${index}.image`, null, {
+      shouldValidate: true,
+      shouldDirty: true
+    });
+    setImagePreview(null);
+  };
+
+  return (
+    <Card>
+      <CardHeader className="space-y-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xl">
+            {getValues(`sections.${index}.title`) || `القسم ${index + 1}`}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={getValues(`sections.${index}.isVisible`)}
+              onCheckedChange={(value) =>
+                setValue(`sections.${index}.isVisible`, value)
+              }
+            />
             <Button
-                type="button"
-                onClick={onRemove}
-                className="absolute left-2 top-2"
-                variant="destructive"
-                size="sm"
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={onRemove}
+              disabled={isLoading}
             >
-                حذف القسم
+              حذف
             </Button>
-
-            <div className="space-y-6 mt-8">
-                <div>
-                    <label className="block text-sm font-medium mb-1">عنوان القسم</label>
-                    <Input
-                        {...register(`sections.${index}.title`)}
-                        placeholder="أدخل عنوان القسم"
-                        disabled={isLoading}
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium mb-1">نوع المحتوى</label>
-                    <Select
-                        onValueChange={(value: "editor" | "html") => {
-                            setValue(`sections.${index}.contentType`, value);
-                            setValue(`sections.${index}.content`, "");
-                        }}
-                        value={watch(`sections.${index}.contentType`) || "editor"}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="اختر نوع المحتوى" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="editor">محرر النصوص</SelectItem>
-                            <SelectItem value="html">HTML</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                {watch(`sections.${index}.contentType`) === "editor" && (
-                    <div>
-                        <label className="block text-sm font-medium mb-1">نوع التخطيط</label>
-                        <Select
-                            onValueChange={(value) => setValue(`sections.${index}.layoutType`, value as LayoutType)}
-                            value={watch(`sections.${index}.layoutType`) || "text-only"}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="اختر نوع التخطيط" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {LAYOUT_TYPES.map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                        {getLayoutTypeLabel(type)}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                )}
-
-                {watch(`sections.${index}.contentType`) === "editor" &&
-                    watch(`sections.${index}.layoutType`) !== "text-only" && (
-                        <div>
-                            <label className="block text-sm font-medium mb-1">الصورة</label>
-                            <div className="space-y-2">
-                                <Input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    disabled={isLoading}
-                                />
-                                {watch(`sections.${index}.image`) && (
-                                    <div className="relative w-40 h-40">
-                                        <Image
-                                            src={watch(`sections.${index}.image`) || ''}
-                                            alt="معاينة"
-                                            fill
-                                            className="object-cover rounded-lg"
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                <div>
-                    <label className="block text-sm font-medium mb-1">المحتوى</label>
-                    {watch(`sections.${index}.contentType`) === "editor" ? (
-                        <TextEditor
-                            value={watch(`sections.${index}.content`)}
-                            onChange={(content) => {
-                                setValue(`sections.${index}.content`, content);
-                            }}
-                        />
-                    ) : (
-                        <div className="space-y-4">
-                            <Textarea
-                                value={watch(`sections.${index}.content`)}
-                                onChange={(e) => setValue(`sections.${index}.content`, e.target.value)}
-                                className="font-mono min-h-[200px] text-sm"
-                                placeholder='<div class="text-blue-500 text-xl mb-4">مثال على محتوى HTML</div>'
-                            />
-                            <div className="text-sm text-gray-500">
-                                يمكنك استخدام جميع classes من Tailwind CSS مباشرة في الـ HTML
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* خيارات القسم */}
-                <div className="flex flex-wrap gap-6 pt-4 border-t">
-                    <div className="flex items-center gap-2">
-                        <Switch
-                            id={`section-visibility-${index}`}
-                            checked={watch(`sections.${index}.isVisible`)}
-                            onCheckedChange={(checked) => setValue(`sections.${index}.isVisible`, checked)}
-                        />
-                        <label htmlFor={`section-visibility-${index}`} className="text-sm font-medium">
-                            القسم مرئي
-                        </label>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Switch
-                            id={`section-background-${index}`}
-                            checked={watch(`sections.${index}.showBgColor`)}
-                            onCheckedChange={(checked) => setValue(`sections.${index}.showBgColor`, checked)}
-                        />
-                        <label htmlFor={`section-background-${index}`} className="text-sm font-medium">
-                            تفعيل لون الخلفية
-                        </label>
-                    </div>
-
-                    {watch(`sections.${index}.showBgColor`) && (
-                        <div className="flex items-center gap-2">
-                            <Input
-                                type="color"
-                                {...register(`sections.${index}.bgColor`)}
-                                className="w-10 h-10 p-1"
-                            />
-                            <span className="text-sm text-gray-500">اختر لون الخلفية</span>
-                        </div>
-                    )}
-                </div>
-            </div>
+          </div>
         </div>
-    );
-}
+      </CardHeader>
 
-function getLayoutTypeLabel(type: LayoutType): string {
-    const labels: Record<LayoutType, string> = {
-        "text-only": "نص فقط",
-        "text-image": "نص مع صورة على اليمين",
-        "image-text": "صورة مع نص على اليمين",
-        "text-below-image": "نص أسفل الصورة",
-        "image-below-text": "صورة أسفل النص"
-    };
-    return labels[type];
+      <CardContent className="space-y-4">
+        <div className="grid gap-4">
+          <div className="flex flex-col gap-2">
+            <label>عنوان القسم</label>
+            <Input
+              {...register(`sections.${index}.title`)}
+              placeholder="عنوان القسم"
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label>نوع التنسيق</label>
+            <Select
+              value={getValues(`sections.${index}.layoutType`)}
+              onValueChange={(value) =>
+                setValue(`sections.${index}.layoutType`, value)
+              }
+              disabled={isLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="اختر نوع التنسيق" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="text-only">نص فقط</SelectItem>
+                <SelectItem value="text-image">نص وصورة</SelectItem>
+                <SelectItem value="image-text">صورة ونص</SelectItem>
+                <SelectItem value="text-below-image">نص تحت الصورة</SelectItem>
+                <SelectItem value="image-below-text">صورة تحت النص</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {getValues(`sections.${index}.layoutType`) !== 'text-only' && (
+            <div className="flex flex-col gap-2">
+              <label>الصورة</label>
+              <div className="flex flex-col gap-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  disabled={isLoading || isUploading}
+                  className="hidden"
+                  id={`section-image-${index}`}
+                />
+                {imagePreview ? (
+                  <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={handleRemoveImage}
+                      disabled={isLoading}
+                    >
+                      حذف
+                    </Button>
+                  </div>
+                ) : (
+                  <label
+                    htmlFor={`section-image-${index}`}
+                    className="flex aspect-video w-full cursor-pointer items-center justify-center rounded-lg border border-dashed"
+                  >
+                    {isUploading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        جاري الرفع...
+                      </div>
+                    ) : (
+                      <span>انقر لإضافة صورة</span>
+                    )}
+                  </label>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <label>المحتوى</label>
+            <TextEditor
+              value={getValues(`sections.${index}.content`)}
+              onChange={(content) =>
+                setValue(`sections.${index}.content`, content)
+              }
+            />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <label>لون الخلفية</label>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={getValues(`sections.${index}.showBgColor`)}
+                onCheckedChange={(value) =>
+                  setValue(`sections.${index}.showBgColor`, value)
+                }
+                disabled={isLoading}
+              />
+              {getValues(`sections.${index}.showBgColor`) && (
+                <Input
+                  type="color"
+                  {...register(`sections.${index}.bgColor`)}
+                  className="w-24"
+                  disabled={isLoading}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }

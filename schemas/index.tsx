@@ -2,33 +2,38 @@ import { UserRole } from "@prisma/client";
 import * as z from "zod";
 import { LAYOUT_TYPES } from "@/types/form-types";
 
+
 export const PageFormSchema = z.object({
-    title: z.string().min(1, "عنوان الصفحة مطلوب"),
-    description: z.string().optional(),
-    metaTitle: z.string().optional(),
-    metaDescription: z.string().optional(),
-    headerTitle: z.string().optional(),
-    headerDescription: z.string().optional(),
-    showHeader: z.boolean().optional().default(false),
-    isPublished: z.boolean().optional().default(false),
-    sections: z.array(z.object({
+  title: z.string().min(1, "عنوان الصفحة مطلوب"),
+  description: z.string().optional(),
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
+  headerTitle: z.string().optional(),
+  headerDescription: z.string().optional(),
+  showHeader: z.boolean().optional(),
+  isPublished: z.boolean().optional(),
+  sections: z.array(
+    z.object({
       title: z.string().optional(),
       content: z.string().optional(),
       contentType: z.enum(["editor", "html"]).default("editor"),
-      layoutType: z.enum(LAYOUT_TYPES).optional(),
-      image: z.string().optional(),
-      imageFile: z.any().optional(), // إضافة هذا الحقل
-      isVisible: z.boolean().optional().default(true),
-      showBgColor: z.boolean().optional().default(false),
+      layoutType: z.enum([
+        "text-only",
+        "text-image",
+        "image-text",
+        "text-below-image",
+        "image-below-text"
+      ]).default("text-only"),
+      image: z.any().optional(), // تعديل هنا
+      imageFile: z.any().optional(), // إضافة هذا
+      isVisible: z.boolean().default(true),
+      showBgColor: z.boolean().default(false),
       bgColor: z.string().optional(),
-      order: z.number().optional(),
-      inputs: z.array(z.object({
-        label: z.string(),
-        type: z.string(),
-        value: z.string().optional(),
-      })).optional(),
-    })).optional(),
-  });
+      order: z.number().default(0),
+      inputs: z.array(z.any()).optional()
+    })
+  ).default([])
+});
 
 export const SettingSchema = z.object({
     name: z.optional(z.string()),

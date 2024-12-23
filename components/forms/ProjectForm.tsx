@@ -1,20 +1,15 @@
 // components/forms/ProjectForm.tsx
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TextEditor } from './TextEditor';
 import { ImageUploader } from './ImageUploader';
-import { createProject, deleteProject, updateProject } from '@/actions/project';
+import { createProject, updateProject } from '@/actions/project';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 interface ProjectFormProps {
     initialData?: any;
-}
-
-interface GalleryUrl {
-    url: string;
-    publicId: string;
 }
 
 export function ProjectForm({ initialData }: ProjectFormProps) {
@@ -24,85 +19,47 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
     const [error, setError] = useState('');
     const [deleteLoading, setDeleteLoading] = useState(false);
 
-    // صورة الغلاف
-    const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
-    const [coverImageUrl, setCoverImageUrl] = useState(initialData?.coverImage || '');
-
-    // الصور الإضافية
-    const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-    const [galleryUrls, setGalleryUrls] = useState<GalleryUrl[]>(
-        initialData?.images || []
-    );
+    // صورة الغلاف والصور الإضافية
+    const [coverImage, setCoverImage] = useState({
+        preview: initialData?.coverImage || '',
+        file: null as File | null
+    });
+    const [galleryImages, setGalleryImages] = useState<Array<{
+        preview: string;
+        file: File | null;
+        publicId?: string;
+    }>>(initialData?.images?.map((img: any) => ({
+        preview: img.url,
+        file: null,
+        publicId: img.publicId
+    })) || []);
 
     const isEditing = !!initialData;
 
-    // تحويل الملف إلى URL للمعاينة
-    const createImagePreview = useCallback((file: File): Promise<string> => {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                resolve(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        });
-    }, []);
-
     // معالجة تغيير صورة الغلاف
-    const handleCoverImageChange = useCallback(async (files: File[]) => {
+    const handleCoverImageChange = async (files: File[]) => {
         if (files.length > 0) {
-            setCoverImageFile(files[0]);
-            const preview = await createImagePreview(files[0]);
-            // تعديل هنا
-            setCoverImageUrl(preview);
-        } else {
-            setCoverImageFile(null);
-            setCoverImageUrl('');
+            const file = files[0];
+            const preview = URL.createObjectURL(file);
+            setCoverImage({
+                preview,
+                file
+            });
         }
-    }, [createImagePreview]);
+    };
 
-    const handleGalleryImagesChange = useCallback(async (files: File[]) => {
-        if (files.length > 0) {
-            // نحتفظ بالملفات القديمة ونضيف عليها الجديدة
-            setGalleryFiles(prevFiles => [...prevFiles, ...files]);
-            
-            // نقوم بإنشاء معاينات للصور الجديدة
-            const previews = await Promise.all(files.map(createImagePreview));
-            
-            // نحتفظ بالصور القديمة ونضيف عليها الجديدة
-            setGalleryUrls(prevUrls => [
-                ...prevUrls,
-                ...previews.map(url => ({ url, publicId: '' }))
-            ]);
-        }
-    }, [createImagePreview]);
-    
-    // تحديث وظيفة حذف الصور
-    const handleExistingGalleryImagesChange = useCallback((images: GalleryUrl[]) => {
-        setGalleryUrls(images);
-        setGalleryFiles([]); // نمسح الملفات عند حذف الصور
-    }, []);
+    // معالجة تغيير الصور الإضافية
+    const handleGalleryImagesChange = async (files: File[]) => {
+        const newImages = await Promise.all(files.map(async (file) => ({
+            preview: URL.createObjectURL(file),
+            file
+        })));
+        setGalleryImages(prev => [...prev, ...newImages]);
+    };
 
-    // رفع صورة إلى Cloudinary
-    const uploadImage = async (file: File, folder: string) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('folder', folder);
-
-        const res = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!res.ok) {
-            throw new Error(`فشل رفع الصورة: ${res.statusText}`);
-        }
-
-        const data = await res.json();
-        if (data.error) {
-            throw new Error(data.error);
-        }
-
-        return data;
+    // معالجة حذف الصور الإضافية
+    const handleRemoveGalleryImage = (index: number) => {
+        setGalleryImages(prev => prev.filter((_, i) => i !== index));
     };
 
     // معالجة تقديم النموذج
@@ -111,53 +68,74 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
         setError('');
 
         try {
-            let finalCoverImageUrl = coverImageUrl;
-            let newGalleryUrls: GalleryUrl[] = [...galleryUrls];
+            // تجهيز صورة الغلاف
+            let finalCoverImageUrl = initialData?.coverImage || '';
+            if (coverImage.file) {
+                const formData = new FormData();
+                formData.append('file', coverImage.file);
+                formData.append('path', 'projects/covers');
 
-            // رفع صورة الغلاف الجديدة إذا تم تحديدها
-            if (coverImageFile) {
-                try {
-                    const coverData = await uploadImage(coverImageFile, 'projects/covers');
-                    finalCoverImageUrl = coverData.url;
-                } catch (error) {
-                    console.error('خطأ في رفع صورة الغلاف:', error);
-                    throw new Error('فشل في رفع صورة الغلاف');
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.secure_url) {
+                    finalCoverImageUrl = data.secure_url;
                 }
             }
 
-            // رفع الصور الإضافية الجديدة
-            if (galleryFiles.length > 0) {
-                try {
-                    const uploadedGalleryUrls = await Promise.all(
-                        galleryFiles.map(file => uploadImage(file, 'projects/gallery'))
-                    );
+            // تجهيز الصور الإضافية
+            const processedGalleryImages = await Promise.all(
+                galleryImages.map(async (img) => {
+                    // إذا كان لدينا ملف جديد، نقوم برفعه
+                    if (img.file) {
+                        const formData = new FormData();
+                        formData.append('file', img.file);
+                        formData.append('path', 'projects/gallery');
 
-                    // تحديث هنا: نستخدم فقط الصور الجديدة المرفوعة
-                    newGalleryUrls = uploadedGalleryUrls.map(data => ({
-                        url: data.url,
-                        publicId: data.publicId
-                    }));
-                } catch (error) {
-                    console.error('خطأ في رفع الصور الإضافية:', error);
-                    throw new Error('فشل في رفع الصور الإضافية');
-                }
-            }
+                        const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const data = await response.json();
+                        if (data.secure_url) {
+                            return {
+                                url: data.secure_url,
+                                publicId: data.public_id
+                            };
+                        }
+                    }
+                    // إذا كانت صورة موجودة مسبقاً، نحتفظ بها
+                    if (img.preview && !img.preview.startsWith('blob:')) {
+                        return {
+                            url: img.preview,
+                            publicId: img.publicId
+                        };
+                    }
+                    return null;
+                })
+            );
+
+            // تنظيف البيانات وإزالة null
+            const finalGalleryImages = processedGalleryImages.filter(Boolean);
 
             // تجهيز بيانات المشروع
             const projectData = {
                 title: formData.get('title') as string,
-                description: formData.get('description') as string || undefined,
-                content: content || undefined,
-                targetAmount: formData.get('targetAmount') ?
+                description: formData.get('description') as string,
+                content: content,
+                targetAmount: formData.get('targetAmount') ? 
                     parseFloat(formData.get('targetAmount') as string) : undefined,
                 startDate: formData.get('startDate') || undefined,
                 endDate: formData.get('endDate') || undefined,
-                coverImage: finalCoverImageUrl || undefined,
-                images: isEditing ? newGalleryUrls : [...newGalleryUrls],
+                coverImage: finalCoverImageUrl,
+                images: finalGalleryImages,
                 isPublished: formData.get('isPublished') === 'on'
             };
 
-            // استدعاء server action
             const result = isEditing
                 ? await updateProject(initialData.id, projectData)
                 : await createProject(projectData);
@@ -165,7 +143,6 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
             if (result.success) {
                 router.push('/admin/projects');
                 router.refresh();
-                setLoading(false);
             } else {
                 setError(result.error || 'حدث خطأ أثناء حفظ المشروع');
             }
@@ -200,13 +177,13 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
    
     return (
         <form
-            onSubmit={async (e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                await handleSubmit(formData);
-            }}
-            className="space-y-6"
-        >
+        onSubmit={async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            await handleSubmit(formData);
+        }}
+        className="space-y-6"
+    >
             {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
                     {error}
@@ -283,7 +260,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
                 <label className="block mb-2 text-gray-700">صورة الغلاف</label>
                 <ImageUploader
                     onImagesChange={handleCoverImageChange}
-                    previewImages={[coverImageUrl].filter(Boolean)}
+                    previewImages={coverImage.preview ? [coverImage.preview] : []}
+                    onRemoveImage={() => setCoverImage({ preview: '', file: null })}
                     disabled={loading}
                     maxImages={1}
                 />
@@ -294,10 +272,8 @@ export function ProjectForm({ initialData }: ProjectFormProps) {
                 <label className="block mb-2 text-gray-700">صور إضافية</label>
                 <ImageUploader
                     onImagesChange={handleGalleryImagesChange}
-                    // نحذف galleryUrls.map(img => img.url) ونستخدم فقط الـ existingImages
-                    previewImages={[]} // هنا التعديل - نجعلها فارغة لأننا سنعرض الصور من خلال existingImages فقط
-                    existingImages={galleryUrls}
-                    onExistingImagesChange={handleExistingGalleryImagesChange}
+                    previewImages={galleryImages.map(img => img.preview)}
+                    onRemoveImage={handleRemoveGalleryImage}
                     disabled={loading}
                     maxImages={5}
                 />

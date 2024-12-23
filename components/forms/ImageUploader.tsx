@@ -8,6 +8,7 @@ import Image from "next/image";
 interface ImageUploaderProps {
   onImagesChange: (files: File[]) => void;
   previewImages: string[];
+  onRemoveImage?: (index: number) => void; // إضافة هذه الخاصية
   disabled?: boolean;
   maxImages?: number;
   existingImages?: { url: string; publicId: string }[];
@@ -17,6 +18,7 @@ interface ImageUploaderProps {
 export function ImageUploader({
   onImagesChange,
   previewImages = [],
+  onRemoveImage,
   disabled = false,
   maxImages = 10,
   existingImages = [],
@@ -44,7 +46,9 @@ export function ImageUploader({
       const newExistingImages = existingImages.filter((_, i) => i !== index);
       onExistingImagesChange?.(newExistingImages);
     } else {
-      onImagesChange([]);
+      if (onRemoveImage) {
+        onRemoveImage(index);
+      }
     }
   };
 
@@ -62,7 +66,6 @@ export function ImageUploader({
     >
       <input {...getInputProps()} />
       
-      {/* المنطقة العلوية للسحب والإفلات */}
       {totalImages === 0 && (
         <div className="flex flex-col items-center justify-center space-y-2 text-center py-8">
           <Upload className="h-4 w-4 text-gray-400" />
@@ -79,10 +82,8 @@ export function ImageUploader({
         </div>
       )}
 
-      {/* شبكة الصور */}
       {(existingImages.length > 0 || previewImages.length > 0) && (
         <div className="flex flex-wrap gap-5 mt-4">
-          {/* الصور الحالية */}
           {existingImages.map((image, index) => (
             <div key={`existing-${image.url}`} className="relative group">
               <div className="relative w-24 h-24">
@@ -109,7 +110,6 @@ export function ImageUploader({
             </div>
           ))}
 
-          {/* الصور المعاينة */}
           {previewImages.map((preview, index) => (
             <div key={`preview-${index}`} className="relative group">
               <div className="relative w-24 h-24">
@@ -121,7 +121,7 @@ export function ImageUploader({
                   height={100}
                 />
               </div>
-              {!disabled && (
+              {!disabled && onRemoveImage && (
                 <button
                   type="button"
                   onClick={(e) => {
@@ -136,8 +136,7 @@ export function ImageUploader({
             </div>
           ))}
 
-          {/* أيقونة الإضافة إذا كان هناك مساحة لمزيد من الصور */}
-           {totalImages < maxImages && (
+          {totalImages < maxImages && (
             <div className="flex items-center justify-center w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 transition-colors">
               <Upload className="h-6 w-6 text-gray-400" />
             </div>
