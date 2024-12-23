@@ -72,7 +72,7 @@ export function NavBar({ scroll = false, large = false, navItems }: NavBarProps)
         <div className="flex items-center gap-3 space-x-3">
 
           <Link
-            href={''}
+            href="/#donate"
             className="hidden md:block"
           >
             <Button
