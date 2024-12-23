@@ -65,7 +65,7 @@ export default function ProjectGallery({ coverImage, images, title }: ProjectGal
         <Swiper
           onSwiper={setThumbsSwiper}
           spaceBetween={10}
-          slidesPerView="auto"
+          slidesPerView="4"
           freeMode={true}
           watchSlidesProgress={true}
           modules={[FreeMode, Navigation, Thumbs]}
