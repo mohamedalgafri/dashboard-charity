@@ -41,7 +41,7 @@ export function NavMobile({ scroll = false, large = false, navItems }: NavMobile
       <button
         onClick={() => setOpen(!open)}
         className={cn(
-          "fixed right-2 top-2.5 z-50 rounded-full p-2 transition-colors duration-200 hover:bg-muted focus:outline-none active:bg-muted md:hidden",
+          "fixed left-2 top-2.5 z-50 rounded-full p-2 transition-colors duration-200 hover:bg-muted focus:outline-none active:bg-muted md:hidden",
           open && "hover:bg-muted active:bg-muted",
         )}
       >
@@ -59,12 +59,11 @@ export function NavMobile({ scroll = false, large = false, navItems }: NavMobile
         )}
       >
         <div className="flex flex-col">
-          <Link href="/" className="flex items-center space-x-1.5 mb-6" onClick={() => setOpen(false)}>
-            <Icons.logo />
+          {/* <Link href="/" className="flex items-center space-x-1.5 mb-6" onClick={() => setOpen(false)}>
             <span className="font-satoshi text-xl font-bold">
               {siteConfig.name}
             </span>
-          </Link>
+          </Link> */}
 
           <ul className="grid divide-y divide-muted">
             {navItems.map((item, index) => (
@@ -87,7 +86,7 @@ export function NavMobile({ scroll = false, large = false, navItems }: NavMobile
           </ul>
 
           <div className="mt-auto pt-4 border-t">
-            {session ? (
+            {session && (
               <Link
                 href={session.user.role === "ADMIN" ? "/admin" : "/dashboard"}
                 onClick={() => setOpen(false)}
@@ -98,19 +97,13 @@ export function NavMobile({ scroll = false, large = false, navItems }: NavMobile
                   size="sm"
                   rounded="xl"
                 >
-                  <span>Dashboard</span>
+                  <span>لوحة التحكم</span>
                 </Button>
               </Link>
-            ) : status === "unauthenticated" ? (
-              <LoginButton mode="modal" asChild>
-                <Button variant="default" className="w-full">
-                  Sign In
-                </Button>
-              </LoginButton>
-            ) : null}
+            )}
 
             <div className="mt-6 flex items-center justify-between">
-              <Link 
+              {/* <Link 
                 href={siteConfig.links.github} 
                 target="_blank" 
                 rel="noreferrer"
@@ -118,7 +111,7 @@ export function NavMobile({ scroll = false, large = false, navItems }: NavMobile
               >
                 <Icons.gitHub className="size-6" />
                 <span className="sr-only">GitHub</span>
-              </Link>
+              </Link> */}
               <ModeToggle />
             </div>
           </div>

@@ -42,7 +42,7 @@ export function NavBar({ scroll = false, large = false, navItems }: NavBarProps)
       >
         <div className="flex gap-6 md:gap-10">
           <Link href="/" className="flex items-center space-x-1.5">
-            <Icons.logo />
+            {/* <Icons.logo /> */}
             <span className="font-satoshi text-xl font-bold">
               {siteConfig.name}
             </span>

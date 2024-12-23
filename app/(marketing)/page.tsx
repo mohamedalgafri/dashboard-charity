@@ -1,5 +1,5 @@
 // app/page.tsx
-import ProjectCoverSlider from "@/components/sections/project-cover-slider";
+
 import DonationForm from "@/components/forms/DonationForm";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 import { db } from "@/lib/db";
@@ -7,6 +7,7 @@ import ProjectsSlider from "@/components/content/ProjectsSlider";
 import { getProjects } from "@/actions/project";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import ProjectCoverSlider from "@/components/sections/project-cover-slider";
 
 export const revalidate = 5;
 
@@ -51,10 +52,15 @@ export default async function IndexPage() {
         <div className="home-header">
           <div className="header-slider flex items-center w-full gap-8">
             <div className="rightHeader flex-1">
-              <h1 className="text-4xl">مؤسسة </h1>
-              <p className="text-xl mt-5">مؤسسة لتقديم المساعدات للمحتاجين</p>
+              <h1 className="text-2xl lg:text-4xl">مؤسسة العطاء </h1>
+              <p className="md:text-lg mt-3 md:mt-5">معًا نبني مستقبلاً مشرقًا عبر نشر روح التكافل والعطاء. كن جزءًا من التغيير وساهم معنا في دعم المحتاجين وتحقيق الأثر المستدام.</p>
+              <Button className="w-28 mt-3">
+                <Link href="#donate">
+                  تبرع الان
+                </Link>
+              </Button>
             </div>
-            <div className="leftHeader flex-1">
+            <div className="leftHeader flex-1 relative">
               <ProjectCoverSlider projects={projectsWithCovers} />
             </div>
           </div>
@@ -77,7 +83,7 @@ export default async function IndexPage() {
         
 
         {availableProjects.length > 0 ? (
-          <section className="py-16">
+          <section className="py-16" id="donate">
             <div className="max-w-xl mx-auto">
               <DonationForm 
                 projects={availableProjects} 

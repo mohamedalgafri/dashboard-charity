@@ -42,7 +42,7 @@ export default function ProjectGallery({ coverImage, images, title }: ProjectGal
       {/* Main Swiper */}
       <Swiper
         spaceBetween={10}
-        navigation={true}
+        navigation={allImages.length > 1}
         thumbs={{ swiper: thumbsSwiper }}
         modules={[FreeMode, Navigation, Thumbs]}
         className="h-[400px] rounded-lg"
