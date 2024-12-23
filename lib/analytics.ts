@@ -14,7 +14,7 @@ export async function getDashboardStats() {
         });
         console.log("All donations:", allDonations);
 
-        // عدد المشاريع
+        // عدد الحملات
         const projectsCount = await db.project.count();
 
         // عدد المتبرعين الفريدين

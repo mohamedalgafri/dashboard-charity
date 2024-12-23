@@ -12,7 +12,7 @@ import ProjectCoverSlider from "@/components/sections/project-cover-slider";
 export const revalidate = 5;
 
 export default async function IndexPage() {
-  // جلب المشاريع التي لديها صور غلاف
+  // جلب الحملات التي لديها صور غلاف
   const projectsWithCovers = await db.project.findMany({
     where: {
       isPublished: true,
@@ -32,7 +32,7 @@ export default async function IndexPage() {
 
   const projects = await getProjects();
 
-  // جلب المشاريع المتاحة للتبرع
+  // جلب الحملات المتاحة للتبرع
   const availableProjects = await db.project.findMany({
     where: {
       isPublished: true,
@@ -69,10 +69,10 @@ export default async function IndexPage() {
       {projects && projects.length > 0 && (
         <div className="mt-12">
           <div className="flex justify-between items-center mb-5">
-            <h2 className="text-2xl font-bold mb-6">المشاريع</h2>
+            <h2 className="text-2xl font-bold mb-6">الحملات</h2>
             <Button>
               <Link href={'/projects'}>
-                جميع المشاريع
+                جميع الحملات
               </Link>
             </Button>
           </div>

@@ -37,14 +37,14 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
           delay: 3000,
           disableOnInteraction: false,
         }}
-        // breakpoints={{
-        //   640: {
-        //     slidesPerView: 2,
-        //   },
-        //   1024: {
-        //     slidesPerView: 3,
-        //   },
-        // }}
+        breakpoints={{
+          640: {
+            slidesPerView: 2,
+          },
+          1024: {
+            slidesPerView: 3,
+          },
+        }}
         dir="rtl"
         className="!px-2"
       >

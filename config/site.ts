@@ -1,7 +1,10 @@
 import { SidebarNavItem, SiteConfig } from "types";
 import { env } from "@/env.mjs";
 
+
 const site_url = env.NEXT_PUBLIC_APP_URL;
+
+
 
 export const siteConfig: SiteConfig = {
   name: "العطاء ",
@@ -10,8 +13,8 @@ export const siteConfig: SiteConfig = {
   url: site_url,
   ogImage: `${site_url}/_static/og.jpg`,
   links: {
-    twitter: "https://twitter.com/miickasmt",
-    github: "https://github.com/mickasmt/next-auth-roles-template",
+    twitter: "",
+    github: "",
   },
   mailSupport: "support@next-starter.fake",
 };

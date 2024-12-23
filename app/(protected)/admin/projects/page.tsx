@@ -17,11 +17,11 @@ export default async function ProjectsPage() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold">إدارة المشاريع</h1>
+        <h1 className="text-xl font-bold">إدارة الحملات</h1>
         <Button >
           <Link className="flex gap-1 items-center" href="/admin/projects/new">
             <Plus className="mr-2 h-4 w-4" />
-            <span>مشروع جديد</span>
+            <span>حملة جديد</span>
           </Link>
         </Button>
       </div>

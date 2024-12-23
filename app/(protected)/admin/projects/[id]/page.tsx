@@ -33,7 +33,7 @@ export default async function ProjectPage({ params }: { params: { id: string } }
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-6">
-        {isNewProject ? "إنشاء مشروع جديد" : "تعديل المشروع"}
+        {isNewProject ? "إنشاء حملة جديد" : "تعديل الحملة"}
       </h1>
       
       <ProjectForm

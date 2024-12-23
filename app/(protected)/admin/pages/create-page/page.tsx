@@ -27,7 +27,7 @@ export default function CreatePage() {
   };
 
   return (
-    <div className="container mx-auto py-10">
+    <div className=" mx-auto py-10 w-full">
       <PageForm mode="create" onSubmit={handleSubmit} />
     </div>
   );

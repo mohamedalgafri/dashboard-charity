@@ -16,18 +16,18 @@ export const sidebarLinks: SidebarNavItem[] = [
     ],
   },
   {
-    title: "المشاريع",
+    title: "الحملات",
     items: [
       {
         href: "/admin/projects/new",
         icon: "package",
-        title: "إنشاء مشروع",
+        title: "إنشاء حملة",
         authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/projects",
         icon: "package",
-        title: "المشاريع",
+        title: "الحملات",
         authorizeOnly: UserRole.ADMIN,
       },
     ],

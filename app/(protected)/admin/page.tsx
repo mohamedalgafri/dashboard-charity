@@ -20,10 +20,10 @@ export default async function AdminPage() {
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <InfoCard
-            title="المشاريع"
+            title="الحملات"
             value={stats.projectsCount}
             icon={Building2}
-            description="إجمالي عدد المشاريع"
+            description="إجمالي عدد الحملات"
           />
           <InfoCard
             title="المتبرعين"

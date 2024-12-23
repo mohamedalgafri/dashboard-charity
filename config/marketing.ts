@@ -31,7 +31,7 @@ import { MarketingConfig } from "@/types";
 
 const staticNav = [
   {
-    title: "المشاريع",
+    title: "الحملات",
     href: "/projects",
   },
 ];

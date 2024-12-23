@@ -10,7 +10,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
   try {
     const validatedData = DonationSchema.parse(data);
 
-    // التحقق من وجود المشروع
+    // التحقق من وجود الحملة
     const project = await db.project.findUnique({
       where: { id: validatedData.projectId },
       select: {
@@ -24,7 +24,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
     if (!project) {
       return {
         success: false,
-        message: "المشروع غير موجود",
+        message: "الحملة غير موجود",
       };
     }
 
@@ -79,7 +79,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       }
     });
 
-    // تحديث المبلغ الحالي للمشروع
+    // تحديث المبلغ الحالي للحملة
     await db.project.update({
       where: { id: validatedData.projectId }, // هنا التغيير
       data: {

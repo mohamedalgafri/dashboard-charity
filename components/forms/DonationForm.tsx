@@ -125,7 +125,7 @@ const DonationForm = ({ selectedProject, projects, className = "" }: DonationFor
     <Card className={className}>
       <CardHeader>
         <CardTitle>تبرع الآن</CardTitle>
-        <CardDescription>ادعم المشروع بتبرعك الكريم</CardDescription>
+        <CardDescription>ادعم الحملة بتبرعك الكريم</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -136,14 +136,14 @@ const DonationForm = ({ selectedProject, projects, className = "" }: DonationFor
                 name="projectId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>اختر المشروع</FormLabel>
+                    <FormLabel>اختر الحملة</FormLabel>
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختر المشروع" />
+                          <SelectValue placeholder="اختر الحملة" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

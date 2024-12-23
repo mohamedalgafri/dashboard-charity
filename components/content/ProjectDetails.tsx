@@ -37,7 +37,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
   if (!project) {
     return (
       <div className="container mx-auto py-8 text-center">
-        لم يتم العثور على المشروع
+        لم يتم العثور على الحملة
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
 
   return (
     <div className="container mx-auto py-8 space-y-12">
-      {/* صور وتفاصيل المشروع */}
+      {/* صور وتفاصيل الحملة */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
           <ProjectGallery
@@ -85,7 +85,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
       </div>
 
 
-      {/* محتوى المشروع */}
+      {/* محتوى الحملة */}
       <div className="prose prose-lg dark:prose-invert w-full">
         {project.content && (
           <div
@@ -112,7 +112,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
           ) : (
             <div className="text-center py-8 bg-green-50 dark:bg-green-950 rounded-lg">
               <p className="text-green-600 dark:text-green-400 font-medium text-lg">
-                تم اكتمال التبرعات لهذا المشروع
+                تم اكتمال التبرعات لهذا الحملة
                 {project.currentAmount > (project.targetAmount || 0) &&
                   " وتم تجاوز المبلغ المستهدف"}
               </p>
@@ -172,7 +172,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
 
       </div>
 
-      {/* المشاريع المشابهة */}
+      {/* الحملات المشابهة */}
       {relatedProjects && relatedProjects.length > 0 && (
         <div className="mt-12">
           <h2 className="text-2xl font-bold mb-6">مشاريع أخرى قد تهمك</h2>

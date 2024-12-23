@@ -22,7 +22,7 @@ export const columns: ColumnDef<Donation>[] = [
   },
   {
     accessorKey: "projectTitle",
-    header: "المشروع",
+    header: "الحملة",
     cell: ({ row }) => row.original.project.title,
   },
   {

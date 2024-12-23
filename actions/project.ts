@@ -43,7 +43,7 @@ export async function createProject(formData: ProjectFormData) {
     return { success: true, data: project };
   } catch (error) {
     console.error('Error creating project:', error);
-    return { success: false, error: 'فشل في إنشاء المشروع' };
+    return { success: false, error: 'فشل في إنشاء الحملة' };
   }
 }
 
@@ -91,7 +91,7 @@ export async function updateProject(id: number, formData: ProjectFormData) {
       return { success: true, data: project };
     } catch (error) {
       console.error('Error updating project:', error);
-      return { success: false, error: 'فشل في تحديث المشروع' };
+      return { success: false, error: 'فشل في تحديث الحملة' };
     }
   }
 
@@ -185,12 +185,12 @@ export async function deleteProject(projectId: number) {
   if (!projectId) {
     return {
       success: false,
-      message: "معرف المشروع غير صالح"
+      message: "معرف الحملة غير صالح"
     };
   }
 
   try {
-    // جلب المشروع مع الصور والتبرعات قبل الحذف
+    // جلب الحملة مع الصور والتبرعات قبل الحذف
     const project = await db.project.findUnique({
       where: { id: projectId },
       include: {
@@ -202,7 +202,7 @@ export async function deleteProject(projectId: number) {
     if (!project) {
       return {
         success: false,
-        message: "المشروع غير موجود"
+        message: "الحملة غير موجود"
       };
     }
 
@@ -242,7 +242,7 @@ export async function deleteProject(projectId: number) {
         }
       }),
 
-      // حذف المشروع نفسه
+      // حذف الحملة نفسه
       db.project.delete({
         where: {
           id: projectId
@@ -254,13 +254,13 @@ export async function deleteProject(projectId: number) {
     
     return {
       success: true,
-      message: "تم حذف المشروع وجميع البيانات المرتبطة به بنجاح"
+      message: "تم حذف الحملة وجميع البيانات المرتبطة به بنجاح"
     };
   } catch (error) {
     console.error("Error deleting project:", error);
     const errorMessage = error instanceof Error 
       ? error.message 
-      : "حدث خطأ غير متوقع أثناء حذف المشروع";
+      : "حدث خطأ غير متوقع أثناء حذف الحملة";
 
     return {
       success: false,

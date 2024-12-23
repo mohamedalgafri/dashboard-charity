@@ -44,7 +44,7 @@ const CellAction = ({ project }: CellActionProps) => {
         toast.error(result.message);
       }
     } catch (error) {
-      toast.error("حدث خطأ أثناء حذف المشروع");
+      toast.error("حدث خطأ أثناء حذف الحملة");
     } finally {
       setLoading(false);
     }
@@ -92,9 +92,9 @@ const CellAction = ({ project }: CellActionProps) => {
           }
         }}>
           <AlertDialogHeader>
-            <AlertDialogTitle>تأكيد حذف المشروع</AlertDialogTitle>
+            <AlertDialogTitle>تأكيد حذف الحملة</AlertDialogTitle>
             <AlertDialogDescription>
-              هل أنت متأكد من حذف مشروع {project.title}
+              هل أنت متأكد من حذف حملة {project.title}
               <br />
               سيتم حذف جميع البيانات المرتبطة به ولا يمكن التراجع عن هذا الإجراء.
             </AlertDialogDescription>
@@ -127,7 +127,7 @@ const CellAction = ({ project }: CellActionProps) => {
 export const columns: ColumnDef<Project>[] = [
   {
     accessorKey: "title",
-    header: "عنوان المشروع",
+    header: "عنوان الحملة",
     cell: ({ row }) => {
       const title: string = row.getValue("title");
       return (

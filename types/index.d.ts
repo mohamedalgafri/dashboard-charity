@@ -81,7 +81,7 @@ export type SidebarNavItem = {
 };
 
 
-// types/project.ts
+// types/index.d.ts
 export interface Project {
   id: number;
   title: string;

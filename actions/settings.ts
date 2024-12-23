@@ -7,7 +7,9 @@ import { getUserByEmail, getUserById } from "@/data/user";
 import { db } from "@/lib/db";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
+import { getCurrentUser } from "@/lib/session";
 import bcrypt from "bcryptjs"
+import { revalidatePath } from "next/cache";
 
 export const settings = async (values:z.infer<typeof SettingSchema>)=>{
     
@@ -70,4 +72,66 @@ export const settings = async (values:z.infer<typeof SettingSchema>)=>{
 
 
     return {success: "Settings Updated!"}
+}
+
+
+export async function updateSiteSettings(data) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { error: "غير مصرح" };
+    }
+
+    const settings = await db.settings.findFirst();
+    
+    if (settings) {
+      await db.settings.update({
+        where: { id: settings.id },
+        data: {
+          siteName: data.siteName,
+          logoImage: data.logoImage,
+          logoText: data.logoText,
+        },
+      });
+    } else {
+      await db.settings.create({
+        data: {
+          siteName: data.siteName,
+          logoImage: data.logoImage,
+          logoText: data.logoText,
+        },
+      });
+    }
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return { error: "حدث خطأ في تحديث الإعدادات" };
+  }
+}
+
+export async function updateSocialLinks(data) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return { error: "غير مصرح" };
+    }
+
+    const settings = await db.settings.findFirst();
+    
+    if (settings) {
+    
+        const updatedLinks = [...settings.socialLinks, ...data];
+        
+        await db.settings.update({
+          where: { id: settings.id },
+          data: {
+            socialLinks: updatedLinks,
+          },
+        });
+      }
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return { error: "حدث خطأ في تحديث روابط التواصل" };
+  }
 }

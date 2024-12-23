@@ -7,7 +7,7 @@ import type { PageFormProps } from "@/types/form-types";
 export function BasicInfoSection({ form, isLoading }: PageFormProps) {
   const { register,setValue,watch, formState: { errors } } = form;
   return (
-    <div className="space-y-6 rounded-lg p-6">
+    <div className="space-y-6 rounded-lg">
       <h3 className="text-lg font-semibold">المعلومات الأساسية</h3>
       
       <div>

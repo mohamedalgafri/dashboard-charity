@@ -65,9 +65,9 @@ export const SettingSchema = z.object({
 
 export const DonationSchema = z.object({
   projectId: z.coerce.number({
-    required_error: "اختيار المشروع مطلوب",
+    required_error: "اختيار الحملة مطلوب",
     invalid_type_error: "يجب أن يكون رقماً",
-  }).positive("اختيار المشروع مطلوب"),
+  }).positive("اختيار الحملة مطلوب"),
 
   amount: z.coerce.number({
     required_error: "قيمة التبرع مطلوبة",

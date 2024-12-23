@@ -10,13 +10,17 @@ import ModalProvider from "@/components/modals/providers";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Suspense } from "react";
 
+
 interface RootLayoutProps {
   children: React.ReactNode;
 }
 
 export const metadata = constructMetadata();
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export default async function RootLayout({ children }: RootLayoutProps) {
+
+
+
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head />

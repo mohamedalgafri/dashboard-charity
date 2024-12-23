@@ -19,35 +19,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import ProjectSwitcher from "@/components/dashboard/project-switcher";
+
 import { Icons } from "@/components/shared/icons";
-import { LogoutButton } from "../auth/logout-button";
+
 
 interface DashboardSidebarProps {
   links: SidebarNavItem[];
+  settings?: {
+    logoText?: string;
+    logoImage?:string;
+  }
 }
 
-export function DashboardSidebar({ links }: DashboardSidebarProps) {
+export function  DashboardSidebar({ links , settings }: DashboardSidebarProps) {
   const path = usePathname();
 
-  // NOTE: Use this if you want save in local storage -- Credits: Hosna Qasmei
-  //
-  // const [isSidebarExpanded, setIsSidebarExpanded] = useState(() => {
-  //   if (typeof window !== "undefined") {
-  //     const saved = window.localStorage.getItem("sidebarExpanded");
-  //     return saved !== null ? JSON.parse(saved) : true;
-  //   }
-  //   return true;
-  // });
-
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     window.localStorage.setItem(
-  //       "sidebarExpanded",
-  //       JSON.stringify(isSidebarExpanded),
-  //     );
-  //   }
-  // }, [isSidebarExpanded]);
 
   const { isTablet } = useMediaQuery();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(!isTablet);
@@ -74,11 +60,20 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
               <div className="flex h-14 items-center p-4 lg:h-[60px] rtl:flex-row-reverse">
                 {isSidebarExpanded ? 
                 
-                <Link href="/" className="flex items-center space-x-1.5">
-                  <Icons.logo />
-                  <span className="font-satoshi text-lg font-bold">
-                    {siteConfig.name}
-                  </span>
+                <Link href="/" className="flex gap-2 items-center space-x-1.5">
+                  {
+                    settings?.logoText &&(
+                      <span className="font-satoshi text-lg font-bold">
+                        {settings?.logoText}
+                      </span>
+                    )
+                  }
+
+                  {
+                    settings?.logoImage &&(
+                      <img className="size-14 object-contain" src={settings?.logoImage} />
+                    )
+                  }
                 </Link>  
 
                 : null}
@@ -183,10 +178,11 @@ export function DashboardSidebar({ links }: DashboardSidebarProps) {
   );
 }
 
-export function MobileSheetSidebar({ links }: DashboardSidebarProps) {
+export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const { isSm, isMobile } = useMediaQuery();
+  console.log("Mobile settings:", settings);
 
   if (isSm || isMobile) {
     return (
@@ -205,17 +201,22 @@ export function MobileSheetSidebar({ links }: DashboardSidebarProps) {
           <ScrollArea className="h-full overflow-y-auto">
             <div className="flex h-screen flex-col">
               <nav className="flex flex-1 flex-col gap-y-8 p-6 text-lg font-medium">
-                <Link
-                  href="#"
-                  className="flex items-center gap-2 text-lg font-semibold"
-                >
-                  <Icons.logo className="size-6" />
-                  <span className="font-satoshi text-lg font-bold">
-                    {siteConfig.name}
-                  </span>
-                </Link>
+              <Link href="/" className="flex gap-2 items-center space-x-1.5">
+                {
+                    settings?.logoImage &&(
+                      <img className="size-14 object-contain" src={settings?.logoImage} />
+                    )
+                  }
 
-                <ProjectSwitcher large />
+                  {
+                    settings?.logoText &&(
+                      <span className="font-satoshi text-lg font-bold">
+                        {settings?.logoText}
+                      </span>
+                    )
+                  }
+               
+                </Link> 
 
                 {links.map((section) => (
                   <section

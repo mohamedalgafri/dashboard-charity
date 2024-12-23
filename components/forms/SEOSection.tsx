@@ -10,9 +10,9 @@ export function SEOSection({ form }: PageFormProps) {
 
   return (
     <div className="space-y-4 p-4 rounded-lg border">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap gap-3 items-center justify-between">
         <h4 className="font-medium">معلومات SEO</h4>
-        <div className="flex items-center gap-3">
+        <div className="flex  items-center gap-3">
           <Switch
             id="show-seo"
             checked={showSEOSection}

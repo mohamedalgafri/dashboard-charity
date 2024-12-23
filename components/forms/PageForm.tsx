@@ -112,10 +112,10 @@ export default function PageForm({ initialData, onSubmit, mode }: PageFormProps)
   };
 
   return (
-    <div className="mx-auto w-full p-8">
+    <div className="mx-auto w-full">
       <Card>
         <CardHeader>
-          <h2 className="text-2xl font-bold text-center">
+          <h2 className="text-2xl font-bold ">
             {mode === "create" ? "إنشاء صفحة جديدة" : "تعديل الصفحة"}
           </h2>
         </CardHeader>
