@@ -22,6 +22,10 @@ export async function SiteFooter({ className }: React.HTMLAttributes<HTMLElement
           <p className="text-left text-sm text-muted-foreground">
               {settings?.siteName}
           </p>
+          
+          <div className="flex items-center gap-5">
+
+         
           <div className="flex items-center gap-3">
 
             {settings?.socialLinks?.map((item) => {
@@ -42,7 +46,8 @@ export async function SiteFooter({ className }: React.HTMLAttributes<HTMLElement
               );
             })}
 
-            <ModeToggle />
+          </div>
+          <ModeToggle />
           </div>
         </div>
       </div>
