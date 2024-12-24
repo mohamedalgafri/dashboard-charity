@@ -88,78 +88,65 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
   const onSubmit = async (data: ProjectFormValues) => {
     setLoading(true);
     setError('');
-
+  
     try {
       let finalCoverImageUrl = initialData?.coverImage || '';
       if (coverImage.file) {
         const formData = new FormData();
         formData.append('file', coverImage.file);
         formData.append('path', 'projects/covers');
-
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData
         });
-
         const uploadData = await response.json();
-        if (uploadData.secure_url) {
-          finalCoverImageUrl = uploadData.secure_url;
-        }
+        finalCoverImageUrl = uploadData.secure_url || '';
       }
-
-      const processedGalleryImages = await Promise.all(
+  
+      const finalGalleryImages = await Promise.all(
         galleryImages.map(async (img) => {
           if (img.file) {
             const formData = new FormData();
             formData.append('file', img.file);
             formData.append('path', 'projects/gallery');
-
             const response = await fetch('/api/upload', {
               method: 'POST',
               body: formData
             });
-
             const uploadData = await response.json();
-            if (uploadData.secure_url) {
-              return {
-                url: uploadData.secure_url,
-                publicId: uploadData.public_id
-              };
-            }
+            return uploadData.secure_url ? {
+              url: uploadData.secure_url,
+              publicId: uploadData.public_id
+            } : null;
           }
-          if (img.preview && !img.preview.startsWith('blob:')) {
-            return {
-              url: img.preview,
-              publicId: img.publicId
-            };
-          }
-          return null;
+          return img.preview && !img.preview.startsWith('blob:') ? {
+            url: img.preview,
+            publicId: img.publicId
+          } : null;
         })
       );
-
-      const finalGalleryImages = processedGalleryImages.filter(Boolean);
-
+  
       const projectData = {
         ...data,
         content,
         coverImage: finalCoverImageUrl,
-        images: finalGalleryImages,
+        images: finalGalleryImages.filter(Boolean),
       };
-
-      const result = isEditing
-        ? await updateProject(initialData.id, projectData)
-        : await createProject(projectData);
-
-      if (result.success) {
-        router.push('/admin/projects');
-        router.refresh();
-      } else {
-        setError(result.error || 'حدث خطأ أثناء حفظ الحملة');
+  
+      const result = await (isEditing 
+        ? updateProject(initialData.id, projectData)
+        : createProject(projectData));
+  
+      if (!result.success) {
+        throw new Error(result.error || 'حدث خطأ أثناء حفظ الحملة');
       }
+  
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      setLoading(false);
+      router.push('/admin/projects');
+      router.refresh();
     } catch (err: any) {
-      console.error('Error saving project:', err);
       setError(err.message || 'حدث خطأ غير متوقع');
-    } finally {
       setLoading(false);
     }
   };
@@ -233,6 +220,7 @@ export function ProjectForm({ initialData, mode }: ProjectFormProps) {
               deleteLoading={deleteLoading}
               onDelete={handleDelete}
               setValue={setValue}
+              watch={watch}
             />
           </form>
         </CardContent>
