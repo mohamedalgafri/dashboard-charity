@@ -132,7 +132,7 @@ export const PagePreview = ({
         </Head>
       )}
 
-      <div className="container py-6 lg:py-12">
+      <div className=" py-6 lg:py-12">
         <style jsx global>{`
           .preview-content {
             white-space: pre-wrap;
