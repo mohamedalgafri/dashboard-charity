@@ -86,94 +86,41 @@ html{
   scroll-behavior: smooth;
 }
 
-.text-gradient_indigo-purple {
-  background: linear-gradient(90deg, #6366f1 0%, rgb(168 85 247 / 0.8) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+
+/* styles/globals.css */
+.text-content {
+  @apply prose prose-sm dark:prose-invert max-w-none text-right
+    /* Typography sizes with nested elements */
+    prose-h1:text-xl prose-h1:md:text-3xl
+    prose-h2:text-lg prose-h2:md:text-2xl
+    prose-p:text-sm prose-p:md:text-base
+    /* Colors */
+    prose-headings:text-foreground
+    prose-p:text-foreground
+    prose-strong:text-foreground
+    prose-em:text-foreground
+    prose-li:text-foreground;
 }
 
-
-/* الوضع الداكن لمحرر ReactQuill */
-.dark .ql-toolbar {
-  background-color: var(--background); /* لون شريط الأدوات */
-  color: #d1d5db; /* لون النص */
+/* تطبيق نفس الحجم على العناصر الداخلية في العناوين */
+.text-content h1 *,
+.text-content h1 span {
+  @apply text-xl md:text-3xl;
 }
 
-.dark .ql-container {
-  background-color: var(--background); /* خلفية منطقة النص */
-  color: #f9fafb; /* لون النص */
+.text-content h2 *,
+.text-content h2 span {
+  @apply text-lg md:text-2xl;
 }
 
-.dark .ql-editor {
-  color: #f9fafb; /* لون النص المكتوب */
+/* لباقي النصوص العادية */
+.text-content :where(:not(h1, h2, h3, h4, h5, h6, h1 *, h2 *)) {
+  @apply text-sm md:text-base;
 }
-
-
-/* تنسيقات ReactQuill */
-.ql-container {
-  font-family: inherit;
-}
-
-.ql-editor {
-  direction: rtl;
-  text-align: right;
-  min-height: 200px;
-}
-
-/* دعم المحاذاة */
-.ql-editor .ql-align-center {
-  text-align: center;
-}
-
-.ql-editor .ql-align-right {
-  text-align: right;
-}
-
-.ql-editor .ql-align-left {
-  text-align: left;
-}
-
-.ql-editor .ql-align-justify {
-  text-align: justify;
-}
-
-/* تباعد الأسطر والفقرات */
-.ql-editor p {
-  margin-bottom: 1em;
-}
-
-/* أحجام الخط */
-.ql-editor .ql-size-small {
-  font-size: 0.875em;
-}
-
-.ql-editor .ql-size-large {
-  font-size: 1.25em;
-}
-
-.ql-editor .ql-size-huge {
-  font-size: 1.5em;
-}
-
-/* العناوين */
-.ql-editor h1 {
-  font-size: 2em;
-  margin-bottom: 0.5em;
-}
-
-.ql-editor h2 {
-  font-size: 1.5em;
-  margin-bottom: 0.5em;
-}
-
-.ql-editor h3 {
-  font-size: 1.17em;
-  margin-bottom: 0.5em;
-}
-
 
 /* ////////////////////////////////////// */
+
+
 
 
 .home-header{

@@ -28,28 +28,28 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
       <Swiper
         modules={[Navigation]}
         spaceBetween={16}
-        slidesPerView={3}
+        slidesPerView={1}
         navigation={{
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
+          nextEl: '.swiper-button-prev',
+          prevEl: '.swiper-button-next',
         }}
         autoplay={{
           delay: 3000,
           disableOnInteraction: false,
         }}
         breakpoints={{
-          640: {
+          550: {
             slidesPerView: 2,
           },
-          1024: {
+          991: {
             slidesPerView: 3,
           },
         }}
-        dir="rtl"
+        // dir="rtl"
         className="!px-2"
       >
         {projects.map((project) => (
-          <SwiperSlide key={project.id} className="!w-72">
+          <SwiperSlide key={project.id} className="">
             <Link href={`/projects/${project.slug}`}>
               <Card className="h-full overflow-hidden">
                 <div className="relative h-40">
@@ -63,16 +63,17 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
                     <div className="w-full h-full bg-gray-200" />
                   )}
                 </div>
-                <CardHeader>
+                <CardHeader className="pb-0 pt-3 min-h-[85px]">
                   <CardTitle className="text-lg line-clamp-1">
                     {project.title}
                   </CardTitle>
-                  <CardDescription className="line-clamp-2">
+                  <CardDescription className="line-clamp-2 ">
                     {project.description}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <DonationProgress
+                    className="mt-0"
                     currentAmount={project.currentAmount}
                     targetAmount={project.targetAmount}
                   />

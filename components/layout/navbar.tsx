@@ -20,9 +20,13 @@ interface NavBarProps {
   scroll?: boolean;
   large?: boolean;
   navItems: NavItem[];
+  settings?: {
+    logoText?: string;
+    logoImage?: string;
+  }
 }
 
-export function NavBar({ scroll = false, large = false, navItems }: NavBarProps) {
+export function NavBar({ scroll = false, large = false, navItems, settings }: NavBarProps) {
   const scrolled = useScroll(50);
   const { data: session, status } = useSession();
   const { setShowSignInModal } = useContext(ModalContext);
@@ -41,11 +45,21 @@ export function NavBar({ scroll = false, large = false, navItems }: NavBarProps)
         large={documentation}
       >
         <div className="flex gap-6 md:gap-10">
-          <Link href="/" className="flex items-center space-x-1.5">
-            {/* <Icons.logo /> */}
-            <span className="font-satoshi text-xl font-bold">
-              {siteConfig.name}
-            </span>
+          <Link href="/" className="flex gap-2 items-center space-x-1.5">
+            
+            {
+              settings?.logoImage && (
+                <img className="size-14 object-contain" src={settings?.logoImage} />
+              )
+            }
+            {
+              settings?.logoText && (
+                <span className="font-satoshi text-xl font-bold">
+                  {settings?.logoText}
+                </span>
+              )
+            }
+
           </Link>
 
           {navItems.length > 0 && (

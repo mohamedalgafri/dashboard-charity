@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area"
 import ProjectGallery from "./ProjectGallery";
+import { notFound } from "next/navigation";
 
 interface ProjectWithImages extends Project {
   images: {
@@ -36,9 +37,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
 
   if (!project) {
     return (
-      <div className="container mx-auto py-8 text-center">
-        لم يتم العثور على الحملة
-      </div>
+      notFound()
     );
   }
 
@@ -86,10 +85,10 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
 
 
       {/* محتوى الحملة */}
-      <div className="prose prose-lg dark:prose-invert w-full">
+      <div className="prose prose-lg dark:prose-invert  py-2 px-2  md:p-5 rounded-2xl w-full min-w-full bg-violet-200 dark:bg-violet-600 ">
         {project.content && (
           <div
-            className="w-full"
+            className="w-full text-content"
             dangerouslySetInnerHTML={{ __html: project.content }}
           />
         )}

@@ -65,7 +65,7 @@ export function UserAccountNav() {
             <ul role="list" className="mb-14 mt-1 w-full text-muted-foreground">
               <li className="rounded-lg text-foreground hover:bg-muted">
                 <Link
-                  href="/dashboard"
+                  href="/admin"
                   onClick={closeDrawer}
                   className="flex w-full items-center gap-3 px-2.5 py-2"
                 >
@@ -76,7 +76,7 @@ export function UserAccountNav() {
 
               <li className="rounded-lg text-foreground hover:bg-muted">
                 <Link
-                  href="/dashboard/settings"
+                  href="/admin/settings"
                   onClick={closeDrawer}
                   className="flex w-full items-center gap-3 px-2.5 py-2"
                 >
@@ -131,7 +131,7 @@ export function UserAccountNav() {
 
 
         <DropdownMenuItem asChild className="cursor-pointer">
-          <Link href="/dashboard" className="flex items-center gap-2 rtl:flex-row-reverse rtl:justify-start">
+          <Link href="/admin" className="flex items-center gap-2 rtl:flex-row-reverse rtl:justify-start">
             <LayoutDashboard className="size-4" />
             <p className="text-sm">لوحة التحكم</p>
           </Link>
@@ -139,7 +139,7 @@ export function UserAccountNav() {
 
         <DropdownMenuItem asChild className="cursor-pointer">
           <Link
-            href="/dashboard/settings"
+            href="/admin/settings"
             className="flex items-center gap-2 rtl:flex-row-reverse rtl:justify-start"
           >
             <Settings className="size-4" />

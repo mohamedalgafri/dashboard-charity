@@ -47,5 +47,19 @@ export const revalidate = 5; // إعادة توليد الصفحة كل دقيق
 
 export default async function ProjectsPage() {
   const projects = await getProjects();
-  return <ProjectsGrid projects={projects} />;
+
+  return (
+    <>
+        <div className="mb-12 mt-12 text-center">
+            <h1 className="text-4xl font-bold mb-4">
+              الحملات
+            </h1>
+            <p className="text-xl">
+
+            </p>
+          </div>
+          <ProjectsGrid projects={projects} />
+    </>
+  )
+
 }

@@ -171,12 +171,12 @@ export const PagePreview = ({
               {data.headerTitle || data.title}
             </h1>
             {data.headerDescription && (
-              <p className="text-xl text-gray-600">{data.headerDescription}</p>
+              <p className="text-xl">{data.headerDescription}</p>
             )}
           </div>
         )}
 
-        <div className="prose max-w-none dark:prose-invert">
+        <div className="prose text-content max-w-none dark:prose-invert">
           {data.sections?.map((section, index) => (
             <div
               key={section.id || index}

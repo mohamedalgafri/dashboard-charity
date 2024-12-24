@@ -46,6 +46,14 @@ export function SocialLinksForm({ settings }) {
     name: "links",
   });
 
+  const handleRemove = (index: number) => {
+      setUpdated(true);
+      remove(index);
+      toast.success("تم حذف الرابط مؤقتاً", {
+        description: "اضغط على حفظ التغييرات لتأكيد الحذف"
+      });
+  };
+
   const onSubmit = handleSubmit((data) => {
     startTransition(async () => {
       const result = await updateSocialLinks(data.links);
@@ -114,7 +122,8 @@ export function SocialLinksForm({ settings }) {
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => remove(index)}
+                    onClick={() => handleRemove(index)}
+                    
                   >
                     <Trash className="h-4 w-4" />
                   </Button>

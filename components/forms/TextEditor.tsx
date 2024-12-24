@@ -12,13 +12,13 @@ import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
 import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
-import { 
-  Bold, 
-  Italic, 
-  Underline as UnderlineIcon, 
-  List, 
-  ListOrdered, 
-  Link as LinkIcon, 
+import {
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  List,
+  ListOrdered,
+  Link as LinkIcon,
   Image as ImageIcon,
   AlignLeft,
   AlignCenter,
@@ -50,14 +50,14 @@ interface TextEditorProps {
 }
 
 const colors = [
-  '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFA500', 
+  '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFA500',
   '#800080', '#008080', '#FFC0CB', '#A52A2A', '#808080',
   '#FFFFFF', '#FFE4E1', '#98FB98', '#87CEEB', '#FFD700'
 ];
 
-export function TextEditor({ 
-  value, 
-  onChange, 
+export function TextEditor({
+  value,
+  onChange,
   className,
   placeholder = 'اكتب هنا...'
 }: TextEditorProps) {
@@ -107,6 +107,12 @@ export function TextEditor({
       attributes: {
         class: cn(
           'prose prose-sm dark:prose-invert min-h-[200px] focus:outline-none max-w-none rtl',
+
+          'prose-p:text-sm md:prose-p:text-base',
+          'prose-span:text-sm md:prose-span:text-base',
+          'prose-h1:text-lg md:prose-h1:text-2xl',
+          'prose-h2:text-base md:prose-h2:text-xl',
+
           'prose-headings:text-foreground',
           'prose-p:text-foreground',
           'prose-strong:text-foreground',
@@ -153,7 +159,7 @@ export function TextEditor({
 
   return (
     <div className={cn(
-      "border rounded-lg bg-background", 
+      "border rounded-lg bg-background",
       "dark:border-neutral-800",
       className
     )}>
@@ -364,7 +370,7 @@ export function TextEditor({
           title="مسح التنسيق"
         />
       </div>
-      
+
       <EditorContent editor={editor} />
     </div>
   );

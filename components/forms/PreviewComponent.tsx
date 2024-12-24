@@ -52,8 +52,8 @@ const PreviewComponent = ({ data }: PreviewProps) => {
             `}
           >
             {/* عرض النص */}
-            <div className={`flex-1 ${section.layoutType === "text-below-image" ? "mb-4" : ""}`}>
-              <p className="text-gray-700">{section.content}</p>
+            <div className={`flex-1 text-content ${section.layoutType === "text-below-image" ? "mb-4" : ""}`}>
+              <p className="">{section.content}</p>
             </div>
 
             {/* عرض الصورة إذا كانت موجودة */}
@@ -79,7 +79,7 @@ const PreviewComponent = ({ data }: PreviewProps) => {
               {section.inputs.map((input, inputIndex) => (
                 <li key={inputIndex} className="mb-2">
                   <strong>{input.label}:</strong> <em>{input.type}</em>
-                  <p className="ml-4 text-gray-700">{input.value}</p>
+                  <p className="ml-4 ">{input.value}</p>
                 </li>
               ))}
             </ul>

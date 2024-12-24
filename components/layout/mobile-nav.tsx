@@ -20,7 +20,7 @@ interface NavMobileProps {
   navItems: NavItem[];
 }
 
-export function NavMobile({ scroll = false, large = false, navItems }: NavMobileProps) {
+export function NavMobile({ scroll = false, large = false, navItems  }: NavMobileProps) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const selectedLayout = useSelectedLayoutSegment();
@@ -59,11 +59,6 @@ export function NavMobile({ scroll = false, large = false, navItems }: NavMobile
         )}
       >
         <div className="flex flex-col">
-          {/* <Link href="/" className="flex items-center space-x-1.5 mb-6" onClick={() => setOpen(false)}>
-            <span className="font-satoshi text-xl font-bold">
-              {siteConfig.name}
-            </span>
-          </Link> */}
 
           <ul className="grid divide-y divide-muted">
             {navItems.map((item, index) => (

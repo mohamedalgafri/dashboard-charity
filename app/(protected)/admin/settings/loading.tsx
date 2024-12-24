@@ -8,6 +8,8 @@ export default function DashboardSettingsLoading() {
       <Skeleton className="h-10 w-60 rounded-lg" />
       <div className="divide-y divide-muted pb-10">
         <SkeletonSection />
+        <SkeletonSection />
+        <SkeletonSection />
         {/* <SkeletonSection /> */}
         {/* <SkeletonSection card /> */}
       </div>

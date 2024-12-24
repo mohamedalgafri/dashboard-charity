@@ -110,28 +110,27 @@ export async function updateSiteSettings(data) {
 }
 
 export async function updateSocialLinks(data) {
-  try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return { error: "غير مصرح" };
-    }
-
-    const settings = await db.settings.findFirst();
-    
-    if (settings) {
-    
-        const updatedLinks = [...settings.socialLinks, ...data];
-        
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        return { error: "غير مصرح" };
+      }
+  
+      const settings = await db.settings.findFirst();
+      
+      if (settings) {
+        // نقوم بتحديث الروابط مباشرة بالبيانات الجديدة
         await db.settings.update({
           where: { id: settings.id },
           data: {
-            socialLinks: updatedLinks,
+            socialLinks: data, // البيانات الجديدة فقط
           },
         });
       }
-    revalidatePath("/");
-    return { success: true };
-  } catch (error) {
-    return { error: "حدث خطأ في تحديث روابط التواصل" };
+      
+      revalidatePath("/");
+      return { success: true };
+    } catch (error) {
+      return { error: "حدث خطأ في تحديث روابط التواصل" };
+    }
   }
-}
