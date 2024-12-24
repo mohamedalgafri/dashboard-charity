@@ -17,9 +17,10 @@ interface NavMobileProps {
   scroll?: boolean;
   large?: boolean;
   navItems: NavItem[];
+  settings;
 }
 
-export function NavMobile({ scroll = false, large = false, navItems  }: NavMobileProps) {
+export function NavMobile({ scroll = false, large = false, navItems,settings }: NavMobileProps) {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const selectedLayout = useSelectedLayoutSegment();
@@ -97,15 +98,27 @@ export function NavMobile({ scroll = false, large = false, navItems  }: NavMobil
             )}
 
             <div className="mt-6 flex items-center justify-between">
-              {/* <Link 
-                href={siteConfig.links.github} 
-                target="_blank" 
-                rel="noreferrer"
-                className="text-foreground/60 hover:text-foreground"
-              >
-                <Icons.gitHub className="size-6" />
-                <span className="sr-only">GitHub</span>
-              </Link> */}
+              <div className="flex items-center gap-3">
+
+                {settings?.socialLinks?.map((item) => {
+                  const iconName = item?.icon
+                    ?.replace(/<|>|\//g, '')
+                    ?.trim()
+                    ?.replace(/^\w/, c => c.toUpperCase());
+
+                  if (!iconName) return null;
+
+                  const IconComponent = lucideIcons[iconName];
+                  if (!IconComponent) return null;
+
+                  return (
+                    <Link target="_blank" key={item.name} href={item.url}>
+                      <IconComponent className="size-5" />
+                    </Link>
+                  );
+                })}
+
+              </div>
               <ModeToggle />
             </div>
           </div>
