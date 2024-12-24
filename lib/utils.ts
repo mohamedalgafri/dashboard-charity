@@ -6,15 +6,18 @@ import { twMerge } from "tailwind-merge";
 import { env } from "@/env.mjs";
 import { siteConfig } from "@/config/site";
 
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+
 
 export function constructMetadata({
   title = siteConfig.name,
   description = siteConfig.description,
   image = siteConfig.ogImage,
-  icons = "/favicon.ico",
+  icons = siteConfig.ogImage,
   noIndex = false,
 }: {
   title?: string;

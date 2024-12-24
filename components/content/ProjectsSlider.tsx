@@ -67,7 +67,7 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
                   <CardTitle className="text-lg line-clamp-1">
                     {project.title}
                   </CardTitle>
-                  <CardDescription className="line-clamp-2 ">
+                  <CardDescription className="line-clamp-2">
                     {project.description}
                   </CardDescription>
                 </CardHeader>

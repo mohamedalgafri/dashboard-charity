@@ -7,8 +7,8 @@ import InfoCard from "@/components/dashboard/info-card";
 import { getDashboardStats } from "@/lib/analytics";
 
 export const metadata = constructMetadata({
-  title: "لوحة التحكم - المنصة",
-  description: "صفحة إدارة المنصة.",
+  title: "لوحة التحكم",
+  description: "صفحة إدارة ",
 });
 
 export default async function AdminPage() {
