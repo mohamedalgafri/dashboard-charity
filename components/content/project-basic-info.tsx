@@ -15,7 +15,7 @@ export function ProjectBasicInfo({ register, errors, loading }: ProjectBasicInfo
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="md:col-span-2">
-        <Label htmlFor="title">عنوان الحملة *</Label>
+        <Label htmlFor="title ">عنوان الحملة *</Label>
         <Input
           id="title"
           {...register("title")}

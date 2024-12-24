@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import DonationProgress from "./DonationProgress";
 
 interface Project {
   id: number;
@@ -27,36 +28,18 @@ export default function ProjectsGrid({ projects }: { projects: Project[] }) {
                   className="w-full h-full object-cover rounded-t-lg"
                 />
               </div>
-              <CardHeader>
+              <CardHeader className="pb-0 pt-3 min-h-[85px]">
                 <CardTitle>{project.title}</CardTitle>
-                <CardDescription className="line-clamp-2">
+                <CardDescription className="line-clamp-2 ">
                   {project.description}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="bg-blue-600 h-2.5 rounded-full"
-                      style={{
-                        width: `${project.targetAmount ? Math.min(
-                          (project.currentAmount / project.targetAmount) * 100,
-                          100
-                        ) : 0}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">
-                      {project.targetAmount ? 
-                        `${Math.round((project.currentAmount / project.targetAmount) * 100)}%` 
-                        : '0%'} تم جمعه
-                    </span>
-                    <span className="font-medium">
-                      {project.currentAmount.toLocaleString()} / {project.targetAmount?.toLocaleString() ?? 0} ريال
-                    </span>
-                  </div>
-                </div>
+                <DonationProgress
+                    className="mt-0"
+                    currentAmount={project.currentAmount}
+                    targetAmount={project.targetAmount}
+                />
               </CardContent>
             </Card>
           </Link>

@@ -59,17 +59,17 @@ const CellAction = ({ project }: CellActionProps) => {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem asChild>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem  className="flex justify-center cursor-pointer" asChild>
             <Link href={`/admin/projects/${project.id}`}>
-              <Pencil className="ml-2 h-4 w-4" />
               <span>تعديل</span>
+              <Pencil className="ml-2 h-4 w-4" />
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem className="flex justify-center cursor-pointer" asChild>
             <Link href={`/projects/${project.slug}`} target="_blank">
-              <Eye className="ml-2 h-4 w-4" />
               <span>عرض</span>
+              <Eye className="ml-2 h-4 w-4" />
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem 
@@ -77,10 +77,10 @@ const CellAction = ({ project }: CellActionProps) => {
               e.preventDefault();
               setShowDeleteAlert(true);
             }}
-            className="text-red-600"
+            className="text-red-600 flex justify-center cursor-pointer"
           >
-            <Trash className="ml-2 h-4 w-4" />
             <span>حذف</span>
+            <Trash className="ml-2 h-4 w-4" />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
