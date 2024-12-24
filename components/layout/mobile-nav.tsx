@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import LoginButton from "../auth/login-button";
 import { ModeToggle } from "./mode-toggle";
 import { NavItem } from "@/types";
+import * as lucideIcons from 'lucide-react';
+
 
 interface NavMobileProps {
   scroll?: boolean;
