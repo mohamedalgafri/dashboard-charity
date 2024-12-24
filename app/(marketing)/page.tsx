@@ -52,8 +52,8 @@ export default async function IndexPage() {
         <div className="home-header">
           <div className="header-slider flex items-center w-full gap-8">
             <div className="rightHeader flex-1">
-              <h1 className="text-2xl lg:text-4xl">مؤسسة العطاء </h1>
-              <p className="md:text-lg mt-3 md:mt-5">معًا نبني مستقبلاً مشرقًا عبر نشر روح التكافل والعطاء. كن جزءًا من التغيير وساهم معنا في دعم المحتاجين وتحقيق الأثر المستدام.</p>
+              <h1 className="text-2xl lg:text-4xl text-white">مؤسسة العطاء </h1>
+              <p className="md:text-lg mt-3 md:mt-5 text-white">معًا نبني مستقبلاً مشرقًا عبر نشر روح التكافل والعطاء. كن جزءًا من التغيير وساهم معنا في دعم المحتاجين وتحقيق الأثر المستدام.</p>
               <Button className="w-28 mt-3">
                 <Link href="#donate">
                   تبرع الان

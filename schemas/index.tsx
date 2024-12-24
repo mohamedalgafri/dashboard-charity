@@ -1,6 +1,22 @@
 import { UserRole } from "@prisma/client";
 import * as z from "zod";
-import { LAYOUT_TYPES } from "@/types/form-types";
+
+;
+
+export const projectSchema = z.object({
+  title: z.string().min(1, { message: "عنوان الحملة مطلوب" }),
+  description: z.string().optional(),
+  targetAmount: z.number({ 
+    required_error: "المبلغ المستهدف مطلوب",
+    invalid_type_error: "يجب أن يكون المبلغ رقماً"
+  }).min(0.01, { message: "يجب أن يكون المبلغ أكبر من صفر" }), // تعديل هنا
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  content: z.string().optional(),
+  isPublished: z.boolean().default(false),
+});
+
+export type ProjectFormValues = z.infer<typeof projectSchema>;
 
 
 export const PageFormSchema = z.object({
