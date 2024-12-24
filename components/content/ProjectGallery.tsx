@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { Swiper, SwiperSlide, useSwiper } from 'swiper/react';
 import { FreeMode, Navigation, Thumbs } from 'swiper/modules';
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import type { Swiper as SwiperType } from 'swiper';
 
-// Import required Swiper styles
 import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
@@ -22,30 +23,45 @@ interface ProjectGalleryProps {
   title: string;
 }
 
-export default function ProjectGallery({ coverImage, images, title }: ProjectGalleryProps) {
-  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
+function NavigationButtons() {
+  const swiper = useSwiper();
+  
+  return (
+    <>
+      <button 
+        onClick={() => swiper.slideNext()}
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/80 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 hidden lg:flex"
+      >
+        <ChevronLeft className="h-6 w-6" />
+      </button>
+      <button 
+        onClick={() => swiper.slidePrev()}
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/80 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10 hidden lg:flex"
+      >
+        <ChevronRight className="h-6 w-6" />
+      </button>
+    </>
+  );
+}
 
-  // Combine cover image with other images
+export default function ProjectGallery({ coverImage, images, title }: ProjectGalleryProps) {
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
   const allImages = [
     ...(coverImage ? [{ id: 0, url: coverImage, order: -1 }] : []),
     ...images,
   ];
 
   if (allImages.length === 0) {
-    return (
-      <div className="w-full aspect-video bg-gray-200 rounded-lg" />
-    );
+    return <div className="w-full aspect-video bg-gray-200 rounded-lg" />;
   }
+  
 
   return (
-    <div className="space-y-4">
-      {/* Main Swiper */}
+    <div className="space-y-4 relative group">
       <Swiper
         spaceBetween={10}
-        navigation={allImages.length > 1}
-        thumbs={{ swiper: thumbsSwiper }}
         modules={[FreeMode, Navigation, Thumbs]}
-        
+        thumbs={{ swiper: thumbsSwiper }}
         className="h-[250px] md:h-[300px] lg:h-[350px] rounded-lg"
       >
         {allImages.map((image) => (
@@ -59,7 +75,9 @@ export default function ProjectGallery({ coverImage, images, title }: ProjectGal
             </div>
           </SwiperSlide>
         ))}
+        <NavigationButtons />
       </Swiper>
+
 
       {/* Thumbs Swiper */}
       {allImages.length > 1 && (
@@ -76,7 +94,7 @@ export default function ProjectGallery({ coverImage, images, title }: ProjectGal
             640: {
               slidesPerView: 4,
             },
-        }}
+          }}
           modules={[FreeMode, Navigation, Thumbs]}
           className="thumbs-swiper h-24"
         >
@@ -93,6 +111,14 @@ export default function ProjectGallery({ coverImage, images, title }: ProjectGal
           ))}
         </Swiper>
       )}
+
+      {/* Hide default Swiper navigation arrows */}
+      <style jsx global>{`
+        .swiper-button-next::after,
+        .swiper-button-prev::after {
+          display: none;
+        }
+      `}</style>
     </div>
   );
 }

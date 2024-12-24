@@ -1,7 +1,6 @@
 // app/(marketing)/projects/[slug]/page.tsx
 import { getProject, getRelatedProjects } from "@/actions/project";
 import ProjectDetails from "@/components/content/ProjectDetails";
-import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
@@ -34,19 +33,4 @@ export default async function ProjectPage({ params }: PageProps) {
       />
     </Suspense>
   );
-}
-
-export async function generateStaticParams() {
-  try {
-    const projects = await db.project.findMany({
-      where: { isPublished: true },
-      select: { slug: true },
-    });
-    return projects.map((project) => ({
-      slug: project.slug,
-    }));
-  } catch (error) {
-    console.error('Error generating static params:', error);
-    return [];
-  }
 }
