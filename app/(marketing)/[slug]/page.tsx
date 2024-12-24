@@ -73,9 +73,9 @@ export default async function PagePage({
     };
 
     return (
-      <MaxWidthWrapper>
+      // <MaxWidthWrapper>
         <PagePreview data={page} />
-      </MaxWidthWrapper>
+      // {/* </MaxWidthWrapper> */}
     );
   } catch (error) {
     console.error("Error fetching page:", error);
