@@ -34,6 +34,10 @@ const staticNav = [
     title: "الحملات",
     href: "/projects",
   },
+  {
+    title: "تواصل معنا",
+    href: "/contact",
+  },
 ];
 
 export async function getMarketingConfig(): Promise<MarketingConfig> {

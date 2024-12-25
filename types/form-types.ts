@@ -67,3 +67,13 @@ export interface ProjectFormData {
   }[];
   isPublished: boolean;
 }
+
+export const ContactSchema = z.object({
+  name: z.string().min(2, { message: "الاسم يجب أن يكون أكثر من حرفين" }),
+  email: z.string().email({ message: "البريد الإلكتروني غير صحيح" }),
+  phone: z.string().min(10, { message: "رقم الهاتف غير صحيح" }),
+  subject: z.string().min(2, { message: "الموضوع يجب أن يكون أكثر من 2 أحرف" }),
+  message: z.string().min(10, { message: "الرسالة يجب أن تكون أكثر من 10 أحرف" }),
+});
+
+export type ContactType = z.infer<typeof ContactSchema>;

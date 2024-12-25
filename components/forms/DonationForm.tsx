@@ -58,7 +58,7 @@ const DonationForm = ({ selectedProject, projects, className = "" }: DonationFor
       const response = await createDonation(data);
   
       if (response.success) {
-        // تأثير confetti أكثر واقعية
+ 
         const count = 200;
         const defaults = {
           origin: { y: 0.7 },
@@ -141,12 +141,12 @@ const DonationForm = ({ selectedProject, projects, className = "" }: DonationFor
                       value={field.value}
                       onValueChange={field.onChange}
                     >
-                      <FormControl>
+                      <FormControl dir='rtl'>
                         <SelectTrigger>
                           <SelectValue placeholder="اختر الحملة" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent dir='rtl'>
                         {projects.map((project) => (
                           <SelectItem key={project.id} value={String(project.id)}>
                             {project.title}

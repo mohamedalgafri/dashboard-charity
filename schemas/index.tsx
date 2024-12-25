@@ -85,10 +85,18 @@ export const DonationSchema = z.object({
     invalid_type_error: "يجب أن يكون رقماً",
   }).positive("اختيار الحملة مطلوب"),
 
-  amount: z.coerce.number({
-    required_error: "قيمة التبرع مطلوبة",
-    invalid_type_error: "يجب أن يكون رقماً",
-  }).positive("يجب أن تكون قيمة التبرع أكبر من صفر"),
+  amount: z.coerce
+    .number({
+      required_error: "قيمة التبرع مطلوبة",
+      invalid_type_error: "يجب أن يكون رقماً",
+    })
+    .positive("يجب أن تكون قيمة التبرع أكبر من صفر")
+    .min(1, "الحد الأدنى للتبرع هو 1")
+    .max(1000000, "قيمة التبرع تجاوزت الحد المسموح به")
+    .refine((val) => Number.isFinite(val) && val <= 1000000, {
+      message: "قيمة التبرع غير صالحة",
+    })
+    .transform((val) => Math.round(val * 100) / 100), // تقريب إلى رقمين عشريين
 
   donorName: z.string({
     required_error: "الاسم مطلوب",
@@ -100,7 +108,8 @@ export const DonationSchema = z.object({
 
   phone: z.string({
     required_error: "رقم الهاتف مطلوب",
-  }).min(9, "رقم الهاتف غير صالح")
+  })
+    .min(9, "رقم الهاتف غير صالح")
     .max(15, "رقم الهاتف غير صالح")
     .regex(/^[0-9+]+$/, "رقم الهاتف يجب أن يحتوي على أرقام فقط"),
 

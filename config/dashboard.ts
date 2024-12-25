@@ -50,6 +50,17 @@ export const sidebarLinks: SidebarNavItem[] = [
     ],
   },
   {
+    title: "تواصل معنا",
+    items: [
+      {
+        href: "/admin/contacts",
+        icon: "post",
+        title: "رسائل التواصل",
+        authorizeOnly: UserRole.ADMIN,
+      },
+    ],
+  },
+  {
     title: "الصفحات",
     items: [
       {

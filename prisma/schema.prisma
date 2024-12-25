@@ -33,88 +33,15 @@ model User {
   updatedAt     DateTime  @updatedAt
 }
 
-// model User {
-//   id                    String                 @id @default(cuid())
-//   name                  String?
-//   email                 String                 @unique
-//   emailVerified         DateTime?
-//   image                 String?
-//   password              String?
-//   accounts              Account[]
-//   role                  UserRole               @default(USER)
-//   createdAt             DateTime               @default(now())
-//   updatedAt             DateTime               @updatedAt
-//   isTwoFactorEnabled    Boolean                @default(false)
-//   twoFactorConfirmation TwoFactorConfirmation?
-// }
-
-// model Account {
-//   userId            String
-//   type              String
-//   provider          String
-//   providerAccountId String  @map("provider_account_id")
-//   refresh_token     String?
-//   access_token      String?
-//   expires_at        Int?
-//   token_type        String?
-//   scope             String?
-//   id_token          String?
-//   session_state     String?
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-
-//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-//   @@id([provider, providerAccountId])
-// }
-
-// model VerificationToken {
-//   id      String   @id @default(cuid())
-//   email   String
-//   token   String   @unique
-//   expires DateTime
-
-//   @@unique([email, token])
-// }
-
-// model PasswordResetToken {
-//   id      String   @id @default(cuid())
-//   email   String
-//   token   String   @unique
-//   expires DateTime
-
-//   @@unique([email, token])
-// }
-
-// model TwoFactorToken {
-//   id      String   @id @default(cuid())
-//   email   String
-//   token   String   @unique
-//   expires DateTime
-
-//   @@unique([email, token])
-// }
-
-// model TwoFactorConfirmation {
-//   id String @id @default(cuid())
-
-//   userId String
-//   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-//   @@unique([userId])
-// }
-
-
 model Page {
   id          Int       @id @default(autoincrement())
   title       String    
   slug        String?   @unique
   description String?   @db.Text
-  metaTitle   String?   // عنوان الميتا
-  metaDescription String? @db.Text  // وصف الميتا
-  headerTitle String?   // عنوان الهيدر
-  headerDescription String? @db.Text // وصف الهيدر
+  metaTitle   String?   
+  metaDescription String? @db.Text  
+  headerTitle String?   
+  headerDescription String? @db.Text 
   showHeader  Boolean?  @default(false)
   isPublished Boolean  @default(true)
   publishedAt DateTime?
@@ -132,7 +59,7 @@ model Section {
   pageId      Int
   page        Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
   inputs      Input[]
-  layoutType  String?   @default("text-only")  // إضافة هذا الحقل
+  layoutType  String?   @default("text-only")  
   order       Int?
   isVisible   Boolean   @default(true)
   showBgColor Boolean   @default(false)
@@ -215,4 +142,16 @@ model Donation {
 
   @@index([projectId, status])
   @@index([donorId])
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String
+  subject   String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@map("contacts")
 }
