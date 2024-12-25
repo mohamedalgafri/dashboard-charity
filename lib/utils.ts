@@ -42,10 +42,10 @@ export function constructMetadata({
     ],
     authors: [
       {
-        name: "mickasmt",
+        name: "mohamed",
       },
     ],
-    creator: "mickasmt",
+    creator: "mohamed",
     openGraph: {
       type: "website",
       locale: "en_US",
@@ -54,22 +54,7 @@ export function constructMetadata({
       description,
       siteName: title,
     },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [image],
-      creator: "@miickasmt",
-    },
-    icons,
     metadataBase: new URL(siteConfig.url),
-    manifest: `${siteConfig.url}/site.webmanifest`,
-    ...(noIndex && {
-      robots: {
-        index: false,
-        follow: false,
-      },
-    }),
   };
 }
 
