@@ -29,11 +29,7 @@ export const columns: ColumnDef<Donation>[] = [
     accessorKey: "amount",
     header: "المبلغ",
     cell: ({ row }) => {
-      return new Intl.NumberFormat('ar-SA', {
-        style: 'currency',
-        currency: 'SAR',
-        maximumFractionDigits: 0
-      }).format(row.original.amount);
+      return `$${row.original.amount}`;
     },
   },
   {

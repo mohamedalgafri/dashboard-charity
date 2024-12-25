@@ -55,11 +55,7 @@ const DonationProgress = ({
       </div>
       {isCompleted && isAdmin && isAdminDashboard && surplus > 0 && (
         <div className="text-sm text-green-600">
-          تم جمع زيادة بقيمة {new Intl.NumberFormat('ar-SA', {
-            style: 'currency',
-            currency: 'SAR',
-            maximumFractionDigits: 0
-          }).format(surplus)}
+           تم جمع زيادة بقيمة ${surplus}
         </div>
       )}
     </div>
