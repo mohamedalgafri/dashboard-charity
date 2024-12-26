@@ -1,51 +1,49 @@
-// lib/analytics.ts
 import { db } from "@/lib/db";
 
 export async function getDashboardStats() {
     try {
-        // طباعة التبرعات للتحقق
-        const allDonations = await db.donation.findMany({
-            where: {
-                status: "completed"
-            },
-            select: {
-                amount: true
-            }
-        });
-        console.log("All donations:", allDonations);
-
-        // عدد الحملات
         const projectsCount = await db.project.count();
-
-        // عدد المتبرعين الفريدين
         const donorsCount = await db.donor.count();
-
-        // مجموع التبرعات بطريقة بديلة
-        const totalDonations = await db.donation.aggregate({
-            _sum: {
-                amount: true
-            }
-        });
-
-        // عدد التبرعات المكتملة
-        const completedDonationsCount = await db.donation.count({
+        
+        const completedProjectsCount = await db.project.findMany({
             where: {
-                status: "completed"  // نضيف هذا الشرط
+                targetAmount: { not: null },
+                donations: {
+                    some: {
+                        status: "completed"
+                    }
+                }
+            },
+            include: {
+                donations: {
+                    where: {
+                        status: "completed"
+                    },
+                    select: {
+                        amount: true
+                    }
+                }
             }
+        }).then(projects => {
+            return projects.filter(project => 
+                project.donations.reduce((sum, donation) => 
+                    sum + (Number(donation.amount) || 0), 0) >= (project.targetAmount as number)
+            ).length;
         });
 
-
-        // عدد التبرعات
-        const donationsCount = await db.donation.count();
+        const totalDonations = await db.donation.aggregate({
+            where: { status: "completed" },
+            _sum: { amount: true }
+        });
 
         return {
             projectsCount,
             donorsCount,
-            totalDonations: Number(totalDonations._sum.amount || 0), // استخدام Number للتأكد من التحويل الصحيح
-            completedDonationsCount ,
+            completedProjectsCount,
+            totalDonations: Number(totalDonations._sum.amount || 0),
         };
     } catch (error) {
         console.error("Error fetching dashboard stats:", error);
-        throw error; // إظهار الخطأ للتحقق منه
+        throw error;
     }
 }

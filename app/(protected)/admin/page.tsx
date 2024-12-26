@@ -39,7 +39,7 @@ export default async function AdminPage() {
           />
           <InfoCard
             title="التبرعات المكتملة"
-            value={stats.completedDonationsCount}
+            value={stats.completedProjectsCount}
             icon={LineChart}
             description="عدد التبرعات المكتملة"
           />
