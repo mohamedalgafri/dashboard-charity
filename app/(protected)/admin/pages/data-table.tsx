@@ -82,7 +82,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-5 justify-between">
         {/* حقل البحث */}
         <Input
           placeholder="بحث بالعنوان..."
@@ -94,14 +94,15 @@ export function DataTable<TData, TValue>({
         />
 
         {/* اختيار عدد العناصر في الصفحة */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">عناصر كل صفحة:</span>
+        <div className="flex items-center justify-center sm:justify-between gap-4 ">
+          <span className="text-sm text-gray-500 hidden sm:flex ">عناصر كل صفحة:</span>
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => {
               setPageSize(Number(value));
               setPageIndex(0); // إعادة التعيين للصفحة الأولى عند تغيير عدد العناصر
             }}
+            
           >
             <SelectTrigger className="w-[100px]">
               <SelectValue placeholder={pageSize} />
@@ -118,8 +119,23 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* الجدول */}
-      <div className="rounded-md border">
-        <Table>
+      <style jsx>{`
+            .table-container {
+              width: calc(100vw - 51px);
+              max-width: 100%;
+            }
+
+            @media (min-width: 767px) {
+              .table-container {
+                width: 100%;
+              }
+            }
+          `}</style>
+      <div className="rounded-md border overflow-hidden table-container">
+        <div className="overflow-x-auto" >
+
+          <div className="inline-block min-w-full align-middle m-auto  ">
+        <Table >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -166,10 +182,12 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
+      </div>
+      </div>
 
       {/* الترقيم والتصفح */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex items-center justify-between rtl">
+        <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500  ">
           <span>النتائج: {totalRows}</span>
           <span>|</span>
           <span>

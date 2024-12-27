@@ -222,7 +222,7 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
                     key={section.title}
                     className="flex flex-col justify-center gap-0.5"
                   >
-                    <p className="text-xs rtl:text-right text-muted-foreground">
+                    <p className="text-xs rtl:text-end text-muted-foreground">
                       {section.title}
                     </p>
 
@@ -238,7 +238,7 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
                               }}
                               href={item.disabled ? "#" : item.href}
                               className={cn(
-                                "flex items-center gap-3 rtl:flex-row-reverse rounded-md p-2 text-sm font-medium hover:bg-muted",
+                                "flex items-center rtl:flex-row-reverse gap-3 rounded-md p-2 text-sm font-medium hover:bg-muted",
                                 path === item.href
                                   ? "bg-muted"
                                   : "text-muted-foreground hover:text-accent-foreground",

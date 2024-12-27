@@ -13,12 +13,12 @@ export default async function PagesPage() {
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 rtl" dir="rtl">
     <div className="flex justify-between items-center">
       <h1 className="text-xl font-bold">إدارة الصفحات</h1>
       <Button>
         <Link className="flex gap-1 items-center" href="/admin/pages/create-page">
-          <Plus className="mr-2 size-4" />
+          <Plus className="ml-2 size-4" />
           <span>إنشاء صفحة</span>
         </Link>
       </Button>
