@@ -181,26 +181,26 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const { isSm, isMobile } = useMediaQuery();
-  console.log("Mobile settings:", settings);
+  // console.log("Mobile settings:", settings);
 
   if (isSm || isMobile) {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
+        <SheetTrigger asChild >
           <Button
             variant="outline"
             size="icon"
-            className="size-9 shrink-0 md:hidden"
+            className="size-9 shrink-0 md:hidden "
           >
             <Menu className="size-5" />
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="flex flex-col p-0">
+        <SheetContent side="right" className="flex flex-col p-0" >
           <ScrollArea className="h-full overflow-y-auto">
-            <div className="flex h-screen flex-col">
+            <div className="flex h-screen flex-col " >
               <nav className="flex flex-1 flex-col gap-y-8 p-6 text-lg font-medium">
-              <Link href="/" className="flex gap-2 items-center space-x-1.5">
+              <Link href="/" className="flex gap-2 rtl:flex-row-reverse rtl:justify-start items-center space-x-1.5">
                 {
                     settings?.logoImage &&(
                       <img className="size-14 object-contain" src={settings?.logoImage} />
@@ -220,9 +220,9 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
                 {links.map((section) => (
                   <section
                     key={section.title}
-                    className="flex flex-col gap-0.5"
+                    className="flex flex-col justify-center gap-0.5"
                   >
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs rtl:text-right text-muted-foreground">
                       {section.title}
                     </p>
 
@@ -238,7 +238,7 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
                               }}
                               href={item.disabled ? "#" : item.href}
                               className={cn(
-                                "flex items-center gap-3 rounded-md p-2 text-sm font-medium hover:bg-muted",
+                                "flex items-center gap-3 rtl:flex-row-reverse rounded-md p-2 text-sm font-medium hover:bg-muted",
                                 path === item.href
                                   ? "bg-muted"
                                   : "text-muted-foreground hover:text-accent-foreground",
