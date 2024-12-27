@@ -94,7 +94,7 @@ export function DataTable<TData, TValue>({
         />
 
         {/* اختيار عدد العناصر في الصفحة */}
-        <div className="flex items-center justify-center sm:justify-between gap-4 ">
+        <div className="flex items-center m-auto sm:m-0 justify-between gap-4 ">
           <span className="text-sm text-gray-500 hidden sm:flex ">عناصر كل صفحة:</span>
           <Select
             value={pageSize.toString()}
