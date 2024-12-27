@@ -1,5 +1,4 @@
 import { UserRole } from "@prisma/client";
-
 import { SidebarNavItem } from "types";
 
 export const sidebarLinks: SidebarNavItem[] = [
@@ -12,7 +11,6 @@ export const sidebarLinks: SidebarNavItem[] = [
         title: "لوحة التحكم",
         authorizeOnly: UserRole.ADMIN,
       },
-      // { href: "/dashboard/charts", icon: "lineChart", title: "Charts" },
     ],
   },
   {
@@ -20,13 +18,13 @@ export const sidebarLinks: SidebarNavItem[] = [
     items: [
       {
         href: "/admin/projects/new",
-        icon: "package",
+        icon: "add", // Using "add" from your available icons
         title: "إنشاء حملة",
         authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/projects",
-        icon: "package",
+        icon: "HandHeart", // Using "media" from your available icons
         title: "الحملات",
         authorizeOnly: UserRole.ADMIN,
       },
@@ -37,13 +35,13 @@ export const sidebarLinks: SidebarNavItem[] = [
     items: [
       {
         href: "/admin/donations",
-        icon: "post",
+        icon: "Wallet", // Using existing icon
         title: "التبرعات",
         authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/donors",
-        icon: "post",
+        icon: "Users", // Using "users" if it's available, otherwise we'll need to change this
         title: "المتبرعين",
         authorizeOnly: UserRole.ADMIN,
       }
@@ -54,7 +52,7 @@ export const sidebarLinks: SidebarNavItem[] = [
     items: [
       {
         href: "/admin/contacts",
-        icon: "post",
+        icon: "MessagesSquare", // Using existing icon
         title: "رسائل التواصل",
         authorizeOnly: UserRole.ADMIN,
       },
@@ -65,13 +63,13 @@ export const sidebarLinks: SidebarNavItem[] = [
     items: [
       {
         href: "/admin/pages/create-page",
-        icon: "post",
+        icon: "add", // Using "add" from your available icons
         title: "إنشاء صفحة",
         authorizeOnly: UserRole.ADMIN,
       },
       {
         href: "/admin/pages",
-        icon: "post",
+        icon: "post", // Using existing icon
         title: "الصفحات",
         authorizeOnly: UserRole.ADMIN,
       },

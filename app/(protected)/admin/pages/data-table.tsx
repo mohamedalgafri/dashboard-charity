@@ -121,7 +121,7 @@ export function DataTable<TData, TValue>({
       {/* الجدول */}
       <style jsx>{`
             .table-container {
-              width: calc(100vw - 51px);
+              width: calc(100vw - 35px);
               max-width: 100%;
             }
 
@@ -195,7 +195,7 @@ export function DataTable<TData, TValue>({
           </span>
         </div>
         
-        <div className="flex justify-center sm:justify-normal items-center gap-2 text-sm">
+        <div className="flex justify-center w-full sm:w-auto sm:justify-normal items-center gap-2 text-sm">
           <Button
             variant="outline"
             size="sm"

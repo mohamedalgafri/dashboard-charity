@@ -10,6 +10,7 @@ import {
   File,
   FileText,
   Flame,
+  HandHeart,
   HelpCircle,
   Home,
   Image,
@@ -29,6 +30,8 @@ import {
   SunMedium,
   Trash2,
   User,
+  Users,
+  Wallet,
   X,
 } from "lucide-react";
 
@@ -115,4 +118,8 @@ export const Icons = {
   ),
   user: User,
   warning: AlertTriangle,
+  HandHeart,
+  Wallet,
+  Users,
+  MessagesSquare
 };
