@@ -122,3 +122,9 @@ export interface Donation {
   updatedAt: Date;
 }
 
+
+export interface NotificationData {
+  id: number;
+  amount?: number;
+  donorName?: string;
+}

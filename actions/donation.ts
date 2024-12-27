@@ -5,11 +5,13 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { DonationSchema } from "@/schemas";
+import { getSocket } from "@/lib/socket";
+
 
 export async function createDonation(data: z.infer<typeof DonationSchema>) {
   try {
     const validatedData = DonationSchema.parse(data);
-
+    
     // التحقق من وجود الحملة
     const project = await db.project.findUnique({
       where: { id: validatedData.projectId },
@@ -24,32 +26,31 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
     if (!project) {
       return {
         success: false,
-        message: "الحملة غير موجود",
+        message: "الحملة غير موجودة",
       };
     }
 
-    // إنشاء أو العثور على المتبرع
+    // البحث عن متبرع موجود أو إنشاء متبرع جديد
     let donor;
-    if (validatedData.email) {
-      donor = await db.donor.upsert({
-        where: { email: validatedData.email },
-        update: {
-          name: validatedData.donorName,
-          phone: validatedData.phone || undefined,
-          anonymous: validatedData.anonymous,
-        },
-        create: {
-          name: validatedData.donorName,
-          email: validatedData.email,
-          phone: validatedData.phone || undefined,
-          anonymous: validatedData.anonymous,
-        },
+    if (validatedData.email || validatedData.phone) {
+      // البحث عن المتبرع بالإيميل أو رقم الهاتف
+      donor = await db.donor.findFirst({
+        where: {
+          OR: [
+            { email: validatedData.email || null },
+            { phone: validatedData.phone || null }
+          ]
+        }
       });
-    } else {
+    }
+
+    // إذا لم نجد المتبرع، نقوم بإنشاء متبرع جديد
+    if (!donor) {
       donor = await db.donor.create({
         data: {
           name: validatedData.donorName,
-          phone: validatedData.phone || undefined,
+          email: validatedData.email || null,
+          phone: validatedData.phone || null,
           anonymous: validatedData.anonymous,
         },
       });
@@ -60,14 +61,14 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       ? "completed"
       : "pending";
 
-    // إنشاء التبرع
     const donation = await db.donation.create({
       data: {
         amount: validatedData.amount,
         message: validatedData.message || undefined,
         status: donationStatus,
+        isRead: false,
         project: {
-          connect: { id: validatedData.projectId } // هنا التغيير
+          connect: { id: validatedData.projectId }
         },
         donor: {
           connect: { id: donor.id }
@@ -81,7 +82,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
 
     // تحديث المبلغ الحالي للحملة
     await db.project.update({
-      where: { id: validatedData.projectId }, // هنا التغيير
+      where: { id: validatedData.projectId },
       data: {
         currentAmount: {
           increment: validatedData.amount,
@@ -89,16 +90,12 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       },
     });
 
-    // تحديث حالة التبرعات السابقة
-    if (donationStatus === "completed") {
-      await db.donation.updateMany({
-        where: {
-          projectId: validatedData.projectId, // هنا التغيير
-          status: "pending"
-        },
-        data: {
-          status: "completed"
-        }
+    // إرسال إشعار Socket.IO
+    if ((global as any).io) {
+      (global as any).io.emit('new-donation', {
+        id: donation.id,
+        amount: donation.amount,
+        donorName: donation.donor.name
       });
     }
 
@@ -109,6 +106,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       donation,
       message: "تم إضافة تبرعك بنجاح",
     };
+
   } catch (error) {
     console.error("خطأ في إنشاء التبرع:", error);
     if (error instanceof z.ZodError) {

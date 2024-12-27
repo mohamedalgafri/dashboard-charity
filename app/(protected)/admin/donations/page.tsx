@@ -1,7 +1,6 @@
 // app/(protected)/admin/donations/page.tsx
-import { columns } from "./columns";
-import { DataTable } from "../pages/data-table";
 import { db } from "@/lib/db";
+import { DonationsWrapper } from "@/components/donations/donations-wrapper";
 
 export default async function DonationsPage() {
   const donations = await db.donation.findMany({
@@ -14,13 +13,11 @@ export default async function DonationsPage() {
     },
   });
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold">التبرعات</h1>
-      </div>
 
-      <DataTable columns={columns} data={donations} />
-    </div>
-  );
+  await db.donation.updateMany({
+    where: { isRead: false },
+    data: { isRead: true }
+  });
+ 
+  return <DonationsWrapper donations={donations} />;
 }

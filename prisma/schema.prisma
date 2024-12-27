@@ -117,8 +117,8 @@ model ProjectImage {
 model Donor {
   id          Int         @id @default(autoincrement())
   name        String
-  email       String?     @unique
-  phone       String?     @unique
+  email       String?     
+  phone       String?     
   anonymous   Boolean     @default(false)
   donations   Donation[]
   createdAt   DateTime    @default(now())
@@ -137,6 +137,7 @@ model Donation {
   donor       Donor     @relation(fields: [donorId], references: [id])
   status      String    @default("pending") // pending, completed, failed
   message     String?   @db.Text
+  isRead      Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -151,6 +152,7 @@ model Contact {
   phone     String
   subject   String
   message   String   @db.Text
+  isRead      Boolean   @default(false)
   createdAt DateTime @default(now())
 
   @@map("contacts")

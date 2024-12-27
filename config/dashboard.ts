@@ -1,85 +1,95 @@
+// config/dashboard.ts
 import { UserRole } from "@prisma/client";
-import { SidebarNavItem } from "types";
+import { SidebarNavItem } from "@/types";
+import { getUnreadCounts } from "@/lib/counts";
 
-export const sidebarLinks: SidebarNavItem[] = [
-  {
-    title: "",
-    items: [
-      {
-        href: "/admin",
-        icon: "dashboard",
-        title: "لوحة التحكم",
-        authorizeOnly: UserRole.ADMIN,
-      },
-    ],
-  },
-  {
-    title: "الحملات",
-    items: [
-      {
-        href: "/admin/projects/new",
-        icon: "add", // Using "add" from your available icons
-        title: "إنشاء حملة",
-        authorizeOnly: UserRole.ADMIN,
-      },
-      {
-        href: "/admin/projects",
-        icon: "HandHeart", // Using "media" from your available icons
-        title: "الحملات",
-        authorizeOnly: UserRole.ADMIN,
-      },
-    ],
-  },
-  {
-    title: "التبرعات والمتبرعين",
-    items: [
-      {
-        href: "/admin/donations",
-        icon: "Wallet", // Using existing icon
-        title: "التبرعات",
-        authorizeOnly: UserRole.ADMIN,
-      },
-      {
-        href: "/admin/donors",
-        icon: "Users", // Using "users" if it's available, otherwise we'll need to change this
-        title: "المتبرعين",
-        authorizeOnly: UserRole.ADMIN,
-      }
-    ],
-  },
-  {
-    title: "تواصل معنا",
-    items: [
-      {
-        href: "/admin/contacts",
-        icon: "MessagesSquare", // Using existing icon
-        title: "رسائل التواصل",
-        authorizeOnly: UserRole.ADMIN,
-      },
-    ],
-  },
-  {
-    title: "الصفحات",
-    items: [
-      {
-        href: "/admin/pages/create-page",
-        icon: "add", // Using "add" from your available icons
-        title: "إنشاء صفحة",
-        authorizeOnly: UserRole.ADMIN,
-      },
-      {
-        href: "/admin/pages",
-        icon: "post", // Using existing icon
-        title: "الصفحات",
-        authorizeOnly: UserRole.ADMIN,
-      },
-    ],
-  },
-  {
-    title: "خيارت",
-    items: [
-      { href: "/admin/settings", icon: "settings", title: "الاعدادات" },
-      { href: "/", icon: "home", title: "الموقع الخارجي" },
-    ],
-  },
-];
+export async function getDashboardConfig() {
+  const { unreadDonations, unreadMessages } = await getUnreadCounts();
+
+  const sidebarLinks: SidebarNavItem[] = [
+    {
+      title: "",
+      items: [
+        {
+          href: "/admin",
+          icon: "dashboard",
+          title: "لوحة التحكم",
+          authorizeOnly: UserRole.ADMIN,
+        },
+      ],
+    },
+    {
+      title: "الحملات",
+      items: [
+        {
+          href: "/admin/projects/new",
+          icon: "add",
+          title: "إنشاء حملة",
+          authorizeOnly: UserRole.ADMIN,
+        },
+        {
+          href: "/admin/projects",
+          icon: "HandHeart",
+          title: "الحملات",
+          authorizeOnly: UserRole.ADMIN,
+        },
+      ],
+    },
+    {
+      title: "التبرعات والمتبرعين",
+      items: [
+        {
+          href: "/admin/donations",
+          icon: "Wallet",
+          title: "التبرعات",
+          badge: unreadDonations > 0 ? unreadDonations : undefined,
+          authorizeOnly: UserRole.ADMIN,
+        },
+        {
+          href: "/admin/donors",
+          icon: "Users",
+          title: "المتبرعين",
+          authorizeOnly: UserRole.ADMIN,
+        }
+      ],
+    },
+    {
+      title: "تواصل معنا",
+      items: [
+        {
+          href: "/admin/contacts",
+          icon: "MessagesSquare",
+          title: "رسائل التواصل",
+          // badge: unreadMessages > 0 ? unreadMessages : undefined,
+          authorizeOnly: UserRole.ADMIN,
+        },
+      ],
+    },
+    {
+      title: "الصفحات",
+      items: [
+        {
+          href: "/admin/pages/create-page",
+          icon: "post",
+          title: "إنشاء صفحة",
+          authorizeOnly: UserRole.ADMIN,
+        },
+        {
+          href: "/admin/pages",
+          icon: "post",
+          title: "الصفحات",
+          authorizeOnly: UserRole.ADMIN,
+        },
+      ],
+    },
+    {
+      title: "خيارت",
+      items: [
+        { href: "/admin/settings", icon: "settings", title: "الاعدادات" },
+        { href: "/", icon: "home", title: "الموقع الخارجي" },
+      ],
+    },
+  ];
+
+  return { sidebarLinks };
+}

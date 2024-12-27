@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 
-import { sidebarLinks } from "@/config/dashboard";
 import { getCurrentUser } from "@/lib/session";
 import { SearchCommand } from "@/components/dashboard/search-command";
 import {
@@ -11,6 +10,7 @@ import { ModeToggle } from "@/components/layout/mode-toggle";
 import { UserAccountNav } from "@/components/layout/user-account-nav";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 import { getSiteSettings } from "@/lib/settings";
+import { getDashboardConfig } from "@/config/dashboard";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -19,6 +19,7 @@ interface ProtectedLayoutProps {
 export default async function Dashboard({ children }: ProtectedLayoutProps) {
   const user = await getCurrentUser();
   const settings = await getSiteSettings();
+  const { sidebarLinks } = await getDashboardConfig();
   // if (!user) redirect("/login");
 
   const filteredLinks = sidebarLinks.map((section) => ({
