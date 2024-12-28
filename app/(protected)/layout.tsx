@@ -37,6 +37,8 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
   }));
 
   return (
+
+  
     <div dir="rtl" className="relative flex min-h-screen w-full">
       <Toaster />
       <NotificationsProvider />

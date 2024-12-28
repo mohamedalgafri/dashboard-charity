@@ -2,14 +2,14 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Donation } from "@prisma/client";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { DonationWithRelations } from "@/types";
 
-export const columns: ColumnDef<Donation>[] = [
+export const columns: ColumnDef<DonationWithRelations>[] = [
   {
-    accessorKey: "donorName",
+    accessorKey: "donor.name",
     header: "اسم المتبرع",
     cell: ({ row }) => {
       const donation = row.original;
@@ -21,7 +21,7 @@ export const columns: ColumnDef<Donation>[] = [
     },
   },
   {
-    accessorKey: "projectTitle",
+    accessorKey: "project.title",
     header: "الحملة",
     cell: ({ row }) => row.original.project.title,
   },

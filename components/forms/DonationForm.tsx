@@ -11,27 +11,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { createDonation } from '@/actions/donation';
+import { useAppDispatch } from "@/store/hooks";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DonationSchema, DonationType } from '@/schemas';
 import confetti from 'canvas-confetti';
 
-
 interface Project {
- id: number;
- title: string;
+  id: number;
+  title: string;
 }
 
 interface DonationFormProps {
- selectedProject?: Project;
- projects?: Project[];
- className?: string;
+  selectedProject?: Project;
+  projects?: Project[];
+  className?: string;
 }
 
 const PREDEFINED_AMOUNTS = [10, 100, 200, 1000];
 
 const DonationForm = ({ selectedProject, projects, className = "" }: DonationFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useAppDispatch();
 
   const form = useForm<DonationType>({
     resolver: zodResolver(DonationSchema),
@@ -50,68 +51,68 @@ const DonationForm = ({ selectedProject, projects, className = "" }: DonationFor
     form.setValue("amount", amount.toString());
   };
 
+  const fireConfetti = () => {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 },
+      spread: 50,
+      ticks: 100,
+      gravity: 1.2,
+      decay: 0.94,
+      startVelocity: 30,
+      colors: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0'],
+      shapes: ['square'],
+      scalar: 0.75,
+    };
+
+    function fire(particleRatio: number, opts: any) {
+      confetti({
+        ...defaults,
+        ...opts,
+        particleCount: Math.floor(count * particleRatio)
+      });
+    }
+
+    fire(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    });
+
+    fire(0.2, {
+      spread: 60,
+    });
+
+    fire(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2
+    });
+
+    fire(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    });
+  };
 
   const onSubmit = async (data: DonationType) => {
     setIsLoading(true);
-  
+
     try {
       const response = await createDonation(data);
-  
+
       if (response.success) {
- 
-        const count = 200;
-        const defaults = {
-          origin: { y: 0.7 },
-          spread: 50,
-          ticks: 100,
-          gravity: 1.2,
-          decay: 0.94,
-          startVelocity: 30,
-          colors: ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0'],
-          shapes: ['square'],
-          scalar: 0.75,
-        };
-  
-        function fire(particleRatio: number, opts: any) {
-          confetti({
-            ...defaults,
-            ...opts,
-            particleCount: Math.floor(count * particleRatio)
-          });
-        }
-  
-        // تشغيل التأثير من عدة زوايا
-        fire(0.25, {
-          spread: 26,
-          startVelocity: 55,
-        });
-  
-        fire(0.2, {
-          spread: 60,
-        });
-  
-        fire(0.35, {
-          spread: 100,
-          decay: 0.91,
-          scalar: 0.8
-        });
-  
-        fire(0.1, {
-          spread: 120,
-          startVelocity: 25,
-          decay: 0.92,
-          scalar: 1.2
-        });
-  
-        fire(0.1, {
-          spread: 120,
-          startVelocity: 45,
-        });
-  
-        toast.success(response.message);
+        fireConfetti();
+        toast.success("تم إضافة تبرعك بنجاح");
         form.reset();
       } else {
-        toast.error(response.message);
+        toast.error(response.message || "حدث خطأ أثناء إضافة التبرع");
       }
     } catch (error) {
       console.error('Error:', error);
@@ -268,7 +269,7 @@ const DonationForm = ({ selectedProject, projects, className = "" }: DonationFor
                       disabled={isLoading}
                     />
                   </FormControl>
-                  <FormLabel  style={{marginTop : 0}}>تبرع بشكل مجهول</FormLabel>
+                  <FormLabel style={{marginTop: 0}}>تبرع بشكل مجهول</FormLabel>
                 </FormItem>
               )}
             />

@@ -121,3 +121,7 @@ export interface Donation {
   updatedAt: Date;
 }
 
+export type DonationWithRelations = Donation & {
+  donor: Donor;
+  project: Project;
+};

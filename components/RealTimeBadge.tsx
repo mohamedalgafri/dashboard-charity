@@ -1,35 +1,19 @@
 // components/RealTimeBadge.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Badge } from "@/components/ui/badge";
-import { pusherClient } from '@/lib/pusher';
+import { useAppSelector } from '@/store/hooks';
 
 interface RealTimeBadgeProps {
-  initialCount: number;
   type: 'donations' | 'contacts';
 }
 
-export function RealTimeBadge({ initialCount, type }: RealTimeBadgeProps) {
-  const [count, setCount] = useState(initialCount);
-
-  useEffect(() => {
-    const channel = pusherClient.subscribe(type);
-    
-    channel.bind(`new-${type.slice(0, -1)}`, () => {
-      setCount((prev) => prev + 1);
-      
-      // تحديث badge عند قراءة الإشعارات
-      if (window.location.pathname === `/admin/${type}`) {
-        setCount(0);
-      }
-    });
-
-    return () => {
-      channel.unbind_all();
-      channel.unsubscribe();
-    };
-  }, [type]);
+export function RealTimeBadge({ type }: RealTimeBadgeProps) {
+  const count = useAppSelector((state) => 
+    type === 'donations' 
+      ? state.notifications.unreadDonations 
+      : state.notifications.unreadMessages
+  );
 
   if (count === 0) return null;
 

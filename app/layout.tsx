@@ -9,6 +9,7 @@ import { Analytics } from "@/components/analytics";
 import ModalProvider from "@/components/modals/providers";
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { Suspense } from "react";
+import { ReduxProvider } from "@/store/provider";
 
 
 interface RootLayoutProps {
@@ -31,6 +32,9 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           "font-arabic" 
         )}
       >
+            <ReduxProvider>
+
+            
         <SessionProvider>
           <ThemeProvider
             attribute="class"
@@ -48,6 +52,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             <TailwindIndicator />
           </ThemeProvider>
         </SessionProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

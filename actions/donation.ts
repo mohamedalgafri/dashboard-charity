@@ -1,5 +1,5 @@
 // actions/donation.ts
-"use server";
+"use server"
 
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -7,12 +7,27 @@ import { revalidatePath } from "next/cache";
 import { DonationSchema } from "@/schemas";
 import { pusherServer } from "@/lib/pusher";
 
+export async function getDonations() {
+  try {
+    const donations = await db.donation.findMany({
+      include: {
+        donor: true,
+        project: true,
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    return donations;
+  } catch (error) {
+    throw new Error("فشل في جلب التبرعات");
+  }
+}
 
 export async function createDonation(data: z.infer<typeof DonationSchema>) {
   try {
     const validatedData = DonationSchema.parse(data);
     
-    // التحقق من وجود الحملة
     const project = await db.project.findUnique({
       where: { id: validatedData.projectId },
       select: {
@@ -20,6 +35,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
         slug: true,
         targetAmount: true,
         currentAmount: true,
+        title: true,
       }
     });
 
@@ -30,10 +46,8 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       };
     }
 
-    // البحث عن متبرع موجود أو إنشاء متبرع جديد
     let donor;
     if (validatedData.email || validatedData.phone) {
-      // البحث عن المتبرع بالإيميل أو رقم الهاتف
       donor = await db.donor.findFirst({
         where: {
           OR: [
@@ -44,7 +58,6 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       });
     }
 
-    // إذا لم نجد المتبرع، نقوم بإنشاء متبرع جديد
     if (!donor) {
       donor = await db.donor.create({
         data: {
@@ -61,41 +74,48 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       ? "completed"
       : "pending";
 
-      const donation = await db.donation.create({
-        data: {
-          amount: validatedData.amount,
-          message: validatedData.message || undefined,
-          status: donationStatus,
-          isRead: false,
-          project: {
-            connect: { id: validatedData.projectId }
-          },
-          donor: {
-            connect: { id: donor.id }
-          }
+    const donation = await db.donation.create({
+      data: {
+        amount: validatedData.amount,
+        message: validatedData.message || undefined,
+        status: donationStatus,
+        isRead: false,
+        project: {
+          connect: { id: validatedData.projectId }
         },
-        include: {
-          donor: true,
-          project: true
+        donor: {
+          connect: { id: donor.id }
         }
-      });
-  
-      // إضافة إرسال الإشعار عبر Pusher
-      await pusherServer.trigger('donations', 'new-donation', {
-        donation: {
-          id: donation.id,
-          amount: donation.amount,
-          donorName: donation.donor.anonymous ? 'متبرع مجهول' : donation.donor.name,
-          projectTitle: donation.project.title,
-          createdAt: donation.createdAt
-        }
-      }).then(() => {
-        console.log("Pusher notification sent successfully");
-      }).catch((error) => {
-        console.error("Error sending Pusher notification:", error);
-      });
+      },
+      include: {
+        donor: true,
+        project: true
+      }
+    });
 
-    // تحديث المبلغ الحالي للحملة
+    // إرسال كل بيانات التبرع عبر Pusher للتحديث المباشر
+    await pusherServer.trigger('donations', 'new-donation', {
+      donation: {
+        id: donation.id,
+        amount: donation.amount,
+        status: donation.status,
+        message: donation.message,
+        isRead: donation.isRead,
+        createdAt: donation.createdAt,
+        project: {
+          id: donation.project.id,
+          title: donation.project.title
+        },
+        donor: {
+          id: donation.donor.id,
+          name: donation.donor.anonymous ? 'متبرع مجهول' : donation.donor.name,
+          anonymous: donation.donor.anonymous,
+          email: donation.donor.email,
+          phone: donation.donor.phone
+        }
+      }
+    });
+
     await db.project.update({
       where: { id: validatedData.projectId },
       data: {
@@ -106,6 +126,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
     });
 
     revalidatePath(`/projects/${project.slug}`);
+    revalidatePath('/admin/donations');
 
     return {
       success: true,
