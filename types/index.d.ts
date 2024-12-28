@@ -57,15 +57,14 @@ export type SiteConfig = {
   };
 };
 
-export type NavItem = {
+export interface NavItem {
   title: string;
   href: string;
-  badge?: number;
   disabled?: boolean;
-  external?: boolean;
+  icon?: string;
+  badge?: number;
   authorizeOnly?: UserRole;
-  icon?: keyof typeof Icons;
-};
+}
 
 export type MainNavItem = NavItem;
 
@@ -122,9 +121,3 @@ export interface Donation {
   updatedAt: Date;
 }
 
-
-export interface NotificationData {
-  id: number;
-  amount?: number;
-  donorName?: string;
-}

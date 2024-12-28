@@ -11,18 +11,11 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
-   
+    
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
     const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
     const isLoginPage = nextUrl.pathname === "/auth/login";
     const isAdminRoute = nextUrl.pathname.startsWith("/admin") || nextUrl.pathname.startsWith("/dashboard");
-    // إضافة التحقق من مسار Socket.IO
-    const isSocketRoute = nextUrl.pathname.startsWith('/api/socket');
-
-    // السماح بالوصول إلى Socket.IO
-    if (isSocketRoute) {
-        return;
-    }
 
     // السماح بالوصول إلى routes الـ API
     if (isApiAuthRoute) {
@@ -34,7 +27,7 @@ export default auth((req) => {
         if (isLoggedIn) {
             return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
         }
-        return;
+        return; // السماح بالوصول لصفحة تسجيل الدخول إذا لم يكن مسجل دخول
     }
 
     // التعامل مع مسارات الأدمن
@@ -49,6 +42,11 @@ export default auth((req) => {
     if (isPublicRoute) {
         return;
     }
+
+    // إذا لم يكن مسجل الدخول، توجيه لصفحة تسجيل الدخول
+    // if (!isLoggedIn) {
+    //     return Response.redirect(new URL("/auth/login", nextUrl));
+    // }
 
     return;
 });

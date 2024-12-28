@@ -1,12 +1,9 @@
 // config/dashboard.ts
 import { UserRole } from "@prisma/client";
 import { SidebarNavItem } from "@/types";
-import { getUnreadCounts } from "@/lib/counts";
 
-export async function getDashboardConfig() {
-  const { unreadDonations, unreadMessages } = await getUnreadCounts();
-
-  const sidebarLinks: SidebarNavItem[] = [
+export async function getDashboardLinks(unreadDonations: number = 0, unreadMessages: number = 0) {
+  return [
     {
       title: "",
       items: [
@@ -42,7 +39,7 @@ export async function getDashboardConfig() {
           href: "/admin/donations",
           icon: "Wallet",
           title: "التبرعات",
-          badge: unreadDonations > 0 ? unreadDonations : undefined,
+          badge: unreadDonations,
           authorizeOnly: UserRole.ADMIN,
         },
         {
@@ -60,7 +57,7 @@ export async function getDashboardConfig() {
           href: "/admin/contacts",
           icon: "MessagesSquare",
           title: "رسائل التواصل",
-          // badge: unreadMessages > 0 ? unreadMessages : undefined,
+          // badge: unreadMessages,
           authorizeOnly: UserRole.ADMIN,
         },
       ],
@@ -89,7 +86,5 @@ export async function getDashboardConfig() {
         { href: "/", icon: "home", title: "الموقع الخارجي" },
       ],
     },
-  ];
-
-  return { sidebarLinks };
+  ] as SidebarNavItem[];
 }

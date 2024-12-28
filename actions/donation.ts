@@ -5,7 +5,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { DonationSchema } from "@/schemas";
-import { getSocket } from "@/lib/socket";
+import { pusherServer } from "@/lib/pusher";
 
 
 export async function createDonation(data: z.infer<typeof DonationSchema>) {
@@ -61,24 +61,39 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       ? "completed"
       : "pending";
 
-    const donation = await db.donation.create({
-      data: {
-        amount: validatedData.amount,
-        message: validatedData.message || undefined,
-        status: donationStatus,
-        isRead: false,
-        project: {
-          connect: { id: validatedData.projectId }
+      const donation = await db.donation.create({
+        data: {
+          amount: validatedData.amount,
+          message: validatedData.message || undefined,
+          status: donationStatus,
+          isRead: false,
+          project: {
+            connect: { id: validatedData.projectId }
+          },
+          donor: {
+            connect: { id: donor.id }
+          }
         },
-        donor: {
-          connect: { id: donor.id }
+        include: {
+          donor: true,
+          project: true
         }
-      },
-      include: {
-        donor: true,
-        project: true
-      }
-    });
+      });
+  
+      // إضافة إرسال الإشعار عبر Pusher
+      await pusherServer.trigger('donations', 'new-donation', {
+        donation: {
+          id: donation.id,
+          amount: donation.amount,
+          donorName: donation.donor.anonymous ? 'متبرع مجهول' : donation.donor.name,
+          projectTitle: donation.project.title,
+          createdAt: donation.createdAt
+        }
+      }).then(() => {
+        console.log("Pusher notification sent successfully");
+      }).catch((error) => {
+        console.error("Error sending Pusher notification:", error);
+      });
 
     // تحديث المبلغ الحالي للحملة
     await db.project.update({
@@ -89,15 +104,6 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
         },
       },
     });
-
-    // إرسال إشعار Socket.IO
-    if ((global as any).io) {
-      (global as any).io.emit('new-donation', {
-        id: donation.id,
-        amount: donation.amount,
-        donorName: donation.donor.name
-      });
-    }
 
     revalidatePath(`/projects/${project.slug}`);
 
