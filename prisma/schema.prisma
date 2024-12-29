@@ -13,42 +13,41 @@ enum UserRole {
 }
 
 model Settings {
-  id        String   @id @default(cuid())
-  siteName  String
-  logoImage String?
-  logoText  String?
-  socialLinks Json[]  // سيحتوي على مصفوفة من {name, url, icon}
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(cuid())
+  siteName    String
+  logoImage   String?
+  logoText    String?
+  socialLinks Json[]    // سيحتوي على مصفوفة من {name, url, icon}
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
-
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  name          String?
-  role          UserRole  @default(ADMIN)  // تغيير القيمة الافتراضية إلى ADMIN
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  role      UserRole  @default(ADMIN)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Page {
-  id          Int       @id @default(autoincrement())
-  title       String    
-  slug        String?   @unique
-  description String?   @db.Text
-  metaTitle   String?   
-  metaDescription String? @db.Text  
-  headerTitle String?   
-  headerDescription String? @db.Text 
-  showHeader  Boolean?  @default(false)
-  isPublished Boolean  @default(true)
-  publishedAt DateTime?
-  sections    Section[]
-  createdBy   String?
-  updatedAt   DateTime  @updatedAt
-  createdAt   DateTime  @default(now())
+  id               Int       @id @default(autoincrement())
+  title            String    
+  slug             String?   @unique
+  description      String?   @db.Text
+  metaTitle        String?   
+  metaDescription  String?   @db.Text  
+  headerTitle      String?   
+  headerDescription String?  @db.Text 
+  showHeader       Boolean?  @default(false)
+  isPublished      Boolean   @default(true)
+  publishedAt      DateTime?
+  sections         Section[]
+  createdBy        String?
+  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime  @default(now())
 
   @@index([isPublished])
 }
@@ -73,7 +72,7 @@ model Section {
 model Input {
   id          Int       @id @default(autoincrement())
   label       String?
-  type        String?   @default("text") // "text", "editor", "image", "html"
+  type        String?   @default("text")
   value       String?   @db.Text
   sectionId   Int
   section     Section   @relation(fields: [sectionId], references: [id], onDelete: Cascade)
@@ -83,23 +82,22 @@ model Input {
   @@index([sectionId])
 }
 
-
 model Project {
-  id              Int       @id @default(autoincrement())
-  title           String    
-  slug            String    @unique
-  description     String?   @db.Text
-  content         String?   @db.Text
-  targetAmount    Float?    
-  currentAmount   Float     @default(0)
-  startDate       DateTime  @default(now())
-  endDate         DateTime?
-  coverImage      String?   
-  isPublished     Boolean   @default(false)
-  images          ProjectImage[]
-  donations       Donation[]
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id            Int            @id @default(autoincrement())
+  title         String    
+  slug          String         @unique
+  description   String?        @db.Text
+  content       String?        @db.Text
+  targetAmount  Float?    
+  currentAmount Float          @default(0)
+  startDate     DateTime       @default(now())
+  endDate       DateTime?
+  coverImage    String?   
+  isPublished   Boolean        @default(false)
+  images        ProjectImage[]
+  donations     Donation[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@index([isPublished])
 }
@@ -117,8 +115,8 @@ model ProjectImage {
 model Donor {
   id          Int         @id @default(autoincrement())
   name        String
-  email       String?     
-  phone       String?     
+  email       String?     @unique
+  phone       String?     @unique
   anonymous   Boolean     @default(false)
   donations   Donation[]
   createdAt   DateTime    @default(now())
@@ -129,31 +127,46 @@ model Donor {
 }
 
 model Donation {
-  id          Int       @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   amount      Float
   projectId   Int
-  project     Project   @relation(fields: [projectId], references: [id])
+  project     Project       @relation(fields: [projectId], references: [id])
   donorId     Int
-  donor       Donor     @relation(fields: [donorId], references: [id])
-  status      String    @default("pending") // pending, completed, failed
-  message     String?   @db.Text
-  isRead      Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  donor       Donor         @relation(fields: [donorId], references: [id])
+  status      String        @default("pending")
+  message     String?       @db.Text
+  isRead      Boolean       @default(false)  
+  transaction Transaction?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   @@index([projectId, status])
   @@index([donorId])
 }
 
 model Contact {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
   email     String
   phone     String
   subject   String
-  message   String   @db.Text
-  isRead      Boolean   @default(false)
-  createdAt DateTime @default(now())
+  message   String    @db.Text
+  isRead    Boolean   @default(false)  
+  createdAt DateTime  @default(now())
 
   @@map("contacts")
+}
+
+model Transaction {
+  id            Int       @id @default(autoincrement())
+  donationId    Int       @unique
+  donation      Donation  @relation(fields: [donationId], references: [id])
+  amount        Float
+  currency      String    @default("USD")
+  status        String    @default("pending")
+  paymentMethod String    // 'stripe' or 'paypal'
+  paymentIntent String?   // Stripe payment intent ID
+  paymentData   Json?     // Additional payment data
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }

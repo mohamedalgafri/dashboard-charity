@@ -24,6 +24,8 @@ export async function getDonations() {
   }
 }
 
+
+// actions/donation.ts
 export async function createDonation(data: z.infer<typeof DonationSchema>) {
   try {
     const validatedData = DonationSchema.parse(data);
@@ -69,17 +71,11 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       });
     }
 
-    const newAmount = project.currentAmount + validatedData.amount;
-    const donationStatus = (project.targetAmount && newAmount >= project.targetAmount)
-      ? "completed"
-      : "pending";
-
     const donation = await db.donation.create({
       data: {
         amount: validatedData.amount,
         message: validatedData.message || undefined,
-        status: donationStatus,
-        isRead: false,
+        status: "awaiting_payment",
         project: {
           connect: { id: validatedData.projectId }
         },
@@ -93,37 +89,32 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       }
     });
 
-    // إرسال كل بيانات التبرع عبر Pusher للتحديث المباشر
-    await pusherServer.trigger('donations', 'new-donation', {
-      donation: {
-        id: donation.id,
-        amount: donation.amount,
-        status: donation.status,
-        message: donation.message,
-        isRead: donation.isRead,
-        createdAt: donation.createdAt,
-        project: {
-          id: donation.project.id,
-          title: donation.project.title
-        },
-        donor: {
-          id: donation.donor.id,
-          name: donation.donor.anonymous ? 'متبرع مجهول' : donation.donor.name,
-          anonymous: donation.donor.anonymous,
-          email: donation.donor.email,
-          phone: donation.donor.phone
+    // جعل Pusher اختياري
+    try {
+      await pusherServer.trigger('donations', 'new-donation', {
+        donation: {
+          id: donation.id,
+          amount: donation.amount,
+          status: donation.status,
+          message: donation.message,
+          createdAt: donation.createdAt,
+          project: {
+            id: donation.project.id,
+            title: donation.project.title
+          },
+          donor: {
+            id: donation.donor.id,
+            name: donation.donor.anonymous ? 'متبرع مجهول' : donation.donor.name,
+            anonymous: donation.donor.anonymous,
+            email: donation.donor.email,
+            phone: donation.donor.phone
+          }
         }
-      }
-    });
-
-    await db.project.update({
-      where: { id: validatedData.projectId },
-      data: {
-        currentAmount: {
-          increment: validatedData.amount,
-        },
-      },
-    });
+      });
+    } catch (pusherError) {
+      // تجاهل أخطاء Pusher
+      console.error('Pusher error:', pusherError);
+    }
 
     revalidatePath(`/projects/${project.slug}`);
     revalidatePath('/admin/donations');
@@ -131,7 +122,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
     return {
       success: true,
       donation,
-      message: "تم إضافة تبرعك بنجاح",
+      message: "تم إنشاء التبرع بنجاح",
     };
 
   } catch (error) {

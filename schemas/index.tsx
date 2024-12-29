@@ -92,11 +92,7 @@ export const DonationSchema = z.object({
     })
     .positive("يجب أن تكون قيمة التبرع أكبر من صفر")
     .min(1, "الحد الأدنى للتبرع هو 1")
-    .max(1000000, "قيمة التبرع تجاوزت الحد المسموح به")
-    .refine((val) => Number.isFinite(val) && val <= 1000000, {
-      message: "قيمة التبرع غير صالحة",
-    })
-    .transform((val) => Math.round(val * 100) / 100), // تقريب إلى رقمين عشريين
+    .max(1000000, "قيمة التبرع تجاوزت الحد المسموح به"),
 
   donorName: z.string({
     required_error: "الاسم مطلوب",
@@ -114,7 +110,6 @@ export const DonationSchema = z.object({
     .regex(/^[0-9+]+$/, "رقم الهاتف يجب أن يحتوي على أرقام فقط"),
 
   message: z.string().optional(),
-  
   anonymous: z.boolean().default(false),
 });
 

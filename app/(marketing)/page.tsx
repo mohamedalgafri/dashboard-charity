@@ -85,10 +85,7 @@ export default async function IndexPage() {
         {availableProjects.length > 0 ? (
           <section className="py-16" id="donate">
             <div className="max-w-xl mx-auto">
-              <DonationForm 
-                projects={availableProjects} 
-                className="shadow-lg"
-              />
+              <DonationForm projects={availableProjects} isHomePage={true} />
             </div>
           </section>
         ) : (
