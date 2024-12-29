@@ -163,10 +163,12 @@ model Transaction {
   donation      Donation  @relation(fields: [donationId], references: [id])
   amount        Float
   currency      String    @default("USD")
-  status        String    @default("pending")
-  paymentMethod String    // 'stripe' or 'paypal'
+  status        String    @default("pending") // pending, processing, completed, failed, refunded
   paymentIntent String?   // Stripe payment intent ID
   paymentData   Json?     // Additional payment data
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([status])
+  @@index([paymentIntent])
 }
