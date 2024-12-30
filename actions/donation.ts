@@ -89,7 +89,7 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       }
     });
 
-    // جعل Pusher اختياري
+
     try {
       await pusherServer.trigger('donations', 'new-donation', {
         donation: {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,21 +11,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { createDonation } from '@/actions/donation';
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { DonationSchema } from '@/schemas';
 import { Separator } from "@/components/ui/separator";
 import {
   CardElement,
   Elements,
   useStripe,
-  useElements
+  useElements,
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, Lock } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { FormProvider } from "react-hook-form";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
 const PREDEFINED_AMOUNTS = [10, 100, 200, 1000];
 
 const fireConfetti = () => {
@@ -42,7 +44,7 @@ const fireConfetti = () => {
     scalar: 0.75,
   };
 
-  function fire(particleRatio: number, opts: any) {
+  function fire(particleRatio, opts) {
     confetti({
       ...defaults,
       ...opts,
@@ -50,79 +52,67 @@ const fireConfetti = () => {
     });
   }
 
-  fire(0.25, {
-    spread: 26,
-    startVelocity: 55,
-  });
-
-  fire(0.2, {
-    spread: 60,
-  });
-
-  fire(0.35, {
-    spread: 100,
-    decay: 0.91,
-    scalar: 0.8
-  });
+  fire(0.25, { spread: 26, startVelocity: 55 });
+  fire(0.2, { spread: 60 });
+  fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
 };
 
-interface PaymentFormProps {
-  form: any;
-  isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
-  isHomePage?: boolean;
-  projects?: { id: number; title: string }[];
-}
-
-const PaymentForm: React.FC<PaymentFormProps> = ({ 
-  form, 
-  isLoading, 
-  setIsLoading,
-  isHomePage,
-  projects
-}) => {
+const PaymentForm = ({ form, isLoading, setIsLoading, isHomePage, projects }) => {
   const stripe = useStripe();
   const elements = useElements();
+  const [cardComplete, setCardComplete] = useState(false);
+  const cardRef = useRef(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!stripe || !elements) {
-      toast.error("جاري تحميل نظام الدفع... حاول مرة أخرى");
+      toast.error("جاري تحميل نظام الدفع...");
       return;
     }
 
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      toast.error("الرجاء إدخال معلومات البطاقة");
-      return;
-    }
-
-    // validate form
     const validationResult = await form.trigger();
     if (!validationResult) {
-      toast.error("الرجاء التأكد من إدخال جميع البيانات المطلوبة");
+      toast.error("الرجاء إدخال جميع البيانات المطلوبة");
       return;
     }
 
     try {
       setIsLoading(true);
-
-      // Get form data
       const formData = form.getValues();
 
-      // Create donation
-      const donationResponse = await createDonation(formData);
+      // إنشاء طريقة الدفع
+      const { error: createError, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: elements.getElement(CardElement),
+        billing_details: {
+          name: formData.donorName,
+          email: formData.email,
+          phone: formData.phone,
+        },
+      });
+
+      if (createError) {
+        throw new Error(createError.message);
+      }
+
+      // إنشاء التبرع
+      const donationResponse = await createDonation({
+        ...formData,
+        paymentMethodId: paymentMethod.id
+      });
+
       if (!donationResponse.success) {
         throw new Error(donationResponse.message);
       }
 
-      // Initialize payment
+      // الحصول على Client Secret
       const paymentResponse = await fetch('/api/payments/stripe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          donationId: donationResponse.donation.id 
+          donationId: donationResponse.donation.id,
+          paymentMethodId: paymentMethod.id
         }),
       });
 
@@ -132,19 +122,10 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
       const { clientSecret } = await paymentResponse.json();
 
-      // Confirm payment
+      // تأكيد الدفع
       const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
         clientSecret,
-        {
-          payment_method: {
-            card: cardElement,
-            billing_details: {
-              name: formData.donorName,
-              email: formData.email,
-              phone: formData.phone,
-            },
-          },
-        }
+        { payment_method: paymentMethod.id }
       );
 
       if (confirmError) {
@@ -153,11 +134,11 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
 
       if (paymentIntent.status === 'succeeded') {
         fireConfetti();
-        toast.success("تم إتمام عملية التبرع بنجاح");
-        cardElement.clear();
+        toast.success("تم التبرع بنجاح");
         form.reset();
+        elements.getElement(CardElement)?.clear();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Payment Error:', error);
       toast.error(error.message || "حدث خطأ في عملية الدفع");
     } finally {
@@ -166,8 +147,8 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   };
 
   return (
-<form onSubmit={handleSubmit} className="space-y-6">
-{isHomePage && projects && projects.length > 0 && (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {isHomePage && projects?.length > 0 && (
         <FormField
           control={form.control}
           name="projectId"
@@ -178,12 +159,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                 value={field.value?.toString()}
                 onValueChange={(value) => field.onChange(Number(value))}
               >
-                <FormControl dir='rtl'>
+                <FormControl dir="rtl">
                   <SelectTrigger>
                     <SelectValue placeholder="اختر الحملة" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent dir='rtl'>
+                <SelectContent dir="rtl">
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id.toString()}>
                       {project.title}
@@ -325,8 +306,9 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
           <h3 className="text-lg font-medium">معلومات البطاقة</h3>
         </div>
         
-        <div className="border rounded-lg p-6 space-y-4 bg-card">
-          <CardElement
+        <div className="border rounded-lg p-6 bg-card">
+          <CardElement 
+            ref={cardRef}
             options={{
               style: {
                 base: {
@@ -335,13 +317,12 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
                   '::placeholder': {
                     color: '#aab7c4',
                   },
-                },
-                invalid: {
-                  color: '#9e2146',
-                },
+                  fontFamily: 'Inter, sans-serif',
+                }
               },
               hidePostalCode: true,
             }}
+            onChange={(e) => setCardComplete(e.complete)}
           />
           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-4">
             <Lock className="h-4 w-4" />
@@ -353,7 +334,7 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
       <Button 
         type="submit" 
         className="w-full h-12 text-lg"
-        disabled={isLoading || !stripe}
+        disabled={!stripe || !cardComplete || isLoading}
       >
         {isLoading ? "جاري إتمام عملية التبرع..." : "تبرع الآن"}
       </Button>
@@ -361,38 +342,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({
   );
 };
 
-interface Project {
-  id: number;
-  title: string;
-}
-
-interface DonationFormProps {
-  selectedProject?: Project;
-  projects?: Project[];
-  className?: string;
-  isHomePage?: boolean;  
-}
-
-interface PaymentFormProps {
-  form: any;
-  isLoading: boolean;
-  setIsLoading: (loading: boolean) => void;
-  isHomePage?: boolean;
-  projects?: Project[];
-}
-
-const DonationForm = ({ 
-  selectedProject, 
-  projects, 
-  className = "", 
-  isHomePage = false 
-}: DonationFormProps) => {
+const DonationForm = ({ selectedProject, projects, className = "", isHomePage = false }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(DonationSchema),
     defaultValues: {
-      projectId: selectedProject?.id || "",  
+      projectId: selectedProject?.id || "",
       amount: 0,
       donorName: "",
       email: "",
@@ -412,7 +368,7 @@ const DonationForm = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
+          <FormProvider {...form}>
             <PaymentForm 
               form={form} 
               isLoading={isLoading}
@@ -420,7 +376,7 @@ const DonationForm = ({
               isHomePage={isHomePage}
               projects={projects}
             />
-          </Form>
+          </FormProvider>
         </CardContent>
       </Card>
     </Elements>
