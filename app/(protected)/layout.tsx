@@ -12,9 +12,12 @@ import { ModeToggle } from "@/components/layout/mode-toggle";
 import { UserAccountNav } from "@/components/layout/user-account-nav";
 import MaxWidthWrapper from "@/components/shared/max-width-wrapper";
 import { getSiteSettings } from "@/lib/settings";
-import { NotificationsProvider } from "@/components/NotificationsProvider";
 import { getUnreadCounts } from "@/lib/counts";
 import { Toaster } from "@/components/ui/toaster";
+import { NotificationsButton } from "@/components/content/NotificationsDropdown";
+import { DashboardInit } from "@/components/content/DashboardInit";
+import { MessagesProvider } from "@/components/MessagesProvider";
+import { NotificationsProvider } from "@/components/NotificationsProvider";
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -40,8 +43,10 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
 
   
     <div dir="rtl" className="relative flex min-h-screen w-full">
+      <DashboardInit />
       <Toaster />
       <NotificationsProvider />
+      <MessagesProvider />
       <DashboardSidebar links={filteredLinks} settings={settings} />
 
       <div className="flex flex-1 flex-col">
@@ -53,6 +58,7 @@ export default async function Dashboard({ children }: ProtectedLayoutProps) {
               <SearchCommand links={filteredLinks} />
             </div>
 
+            {/* <NotificationsButton /> */}
             <ModeToggle />
             <UserAccountNav />
           </MaxWidthWrapper>

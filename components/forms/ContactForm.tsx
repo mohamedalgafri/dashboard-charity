@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,16 +9,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAppDispatch } from "@/store/hooks";
+import { addNewMessage } from "@/store/slices/notificationsSlice";
 
 import { createContact } from '@/actions/contact';
 import { ContactSchema, ContactType } from '@/types/form-types';
-
 
 interface ContactFormProps {
   className?: string;
 }
 
 const ContactForm: React.FC<ContactFormProps> = ({ className = "" }) => {
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ContactType>({
@@ -37,8 +39,9 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = "" }) => {
     
     try {
       const result = await createContact(data);
-
+  
       if (result.success) {
+        dispatch(addNewMessage()); 
         toast.success(result.message);
         form.reset();
       } else {
@@ -51,6 +54,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ className = "" }) => {
       setIsLoading(false);
     }
   };
+
 
   return (
     <Card className={className}>

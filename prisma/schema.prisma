@@ -30,6 +30,8 @@ model User {
   role      UserRole  @default(ADMIN)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  UserNotificationState UserNotificationState[]
 }
 
 model Page {
@@ -171,4 +173,16 @@ model Transaction {
 
   @@index([status])
   @@index([paymentIntent])
+}
+
+model UserNotificationState {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id])
+  lastDonationsVisit DateTime @default(now())
+  lastMessagesVisit  DateTime @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
 }

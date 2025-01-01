@@ -1,4 +1,3 @@
-// actions/donation.ts
 "use server"
 
 import { z } from "zod";
@@ -7,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { DonationSchema } from "@/schemas";
 import { pusherServer } from "@/lib/pusher";
 
+// جلب جميع التبرعات للجدول
 export async function getDonations() {
   try {
     const donations = await db.donation.findMany({
@@ -24,8 +24,7 @@ export async function getDonations() {
   }
 }
 
-
-// actions/donation.ts
+// إنشاء تبرع جديد
 export async function createDonation(data: z.infer<typeof DonationSchema>) {
   try {
     const validatedData = DonationSchema.parse(data);
@@ -89,7 +88,6 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       }
     });
 
-
     try {
       await pusherServer.trigger('donations', 'new-donation', {
         donation: {
@@ -112,7 +110,6 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
         }
       });
     } catch (pusherError) {
-      // تجاهل أخطاء Pusher
       console.error('Pusher error:', pusherError);
     }
 
@@ -137,5 +134,56 @@ export async function createDonation(data: z.infer<typeof DonationSchema>) {
       success: false,
       message: "حدث خطأ أثناء إضافة التبرع",
     };
+  }
+}
+
+// عدد الإشعارات غير المقروءة
+export async function getUnreadCounts() {
+  try {
+    const [donations, messages] = await Promise.all([
+      db.donation.count({ where: { isRead: false } }),
+      db.contact.count({ where: { isRead: false } })
+    ]);
+    return { donations, messages };
+  } catch (error) {
+    console.error("Error getting unread counts:", error);
+    return { donations: 0, messages: 0 };
+  }
+}
+
+// جلب التبرعات غير المقروءة للإشعارات
+export async function getUnreadDonations() {
+  try {
+    const donations = await db.donation.findMany({
+      where: { isRead: false },
+      include: {
+        donor: true,
+        project: {
+          select: {
+            id: true,
+            title: true,
+            slug: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+    return donations;
+  } catch (error) {
+    return [];
+  }
+}
+
+// تعليم جميع التبرعات كمقروءة
+export async function markAllDonationsAsRead() {
+  try {
+    await db.donation.updateMany({
+      where: { isRead: false },
+      data: { isRead: true }
+    });
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    return { success: false };
   }
 }

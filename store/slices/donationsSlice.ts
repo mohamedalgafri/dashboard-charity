@@ -1,4 +1,3 @@
-// store/slices/donationsSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { getDonations } from '@/actions/donation';
 import { DonationWithRelations } from '@/types';
@@ -11,7 +10,7 @@ interface DonationsState {
 
 const initialState: DonationsState = {
   items: [],
-  isLoading: false,
+  isLoading: true, 
   error: null
 };
 
@@ -42,6 +41,7 @@ const donationsSlice = createSlice({
       })
       .addCase(fetchDonations.rejected, (state, action) => {
         state.isLoading = false;
+        state.items = [];
         state.error = "حدث خطأ في جلب التبرعات";
       });
   },

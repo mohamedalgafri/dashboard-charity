@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { toast } from "sonner";
 import { createDonation } from '@/actions/donation';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { DonationSchema } from '@/schemas';
 import { Separator } from "@/components/ui/separator";
 import {
@@ -24,7 +24,6 @@ import {
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, Lock } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { FormProvider } from "react-hook-form";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -65,86 +64,93 @@ const PaymentForm = ({ form, isLoading, setIsLoading, isHomePage, projects }) =>
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+   
     if (!stripe || !elements) {
       toast.error("جاري تحميل نظام الدفع...");
       return;
     }
-
+   
     const validationResult = await form.trigger();
     if (!validationResult) {
       toast.error("الرجاء إدخال جميع البيانات المطلوبة");
       return;
     }
-
+   
     try {
       setIsLoading(true);
       const formData = form.getValues();
-
-      // إنشاء طريقة الدفع
+      const card = elements.getElement(CardElement);
+   
+      if (!card) {
+        throw new Error("بطاقة غير صالحة");
+      }
+   
       const { error: createError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
-        card: elements.getElement(CardElement),
+        card,
         billing_details: {
           name: formData.donorName,
           email: formData.email,
           phone: formData.phone,
         },
       });
-
+   
       if (createError) {
         throw new Error(createError.message);
       }
-
-      // إنشاء التبرع
+   
       const donationResponse = await createDonation({
         ...formData,
         paymentMethodId: paymentMethod.id
       });
-
-      if (!donationResponse.success) {
-        throw new Error(donationResponse.message);
+   
+      if (!donationResponse?.success || !donationResponse?.donation?.id) {
+        throw new Error("فشل في إنشاء التبرع");
       }
-
-      // الحصول على Client Secret
+   
       const paymentResponse = await fetch('/api/payments/stripe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           donationId: donationResponse.donation.id,
           paymentMethodId: paymentMethod.id
         }),
       });
-
+   
       if (!paymentResponse.ok) {
-        throw new Error('فشل في تجهيز عملية الدفع');
+        throw new Error("فشل في تجهيز عملية الدفع");
       }
-
+   
       const { clientSecret } = await paymentResponse.json();
-
-      // تأكيد الدفع
-      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        { payment_method: paymentMethod.id }
-      );
-
-      if (confirmError) {
-        throw new Error(confirmError.message);
+   
+      const confirmation = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: paymentMethod.id
+      });
+   
+      if (confirmation.error) {
+        throw new Error(confirmation.error.message);
       }
-
-      if (paymentIntent.status === 'succeeded') {
-        fireConfetti();
+   
+      if (confirmation.paymentIntent.status === 'succeeded') {
         toast.success("تم التبرع بنجاح");
+        fireConfetti();
         form.reset();
-        elements.getElement(CardElement)?.clear();
+        setIsLoading(false);
+        
+        // تأخير مسح البطاقة
+        setTimeout(() => {
+          const cardElement = elements.getElement(CardElement);
+          if (cardElement) {
+            cardElement.clear();
+          }
+        }, 100);
       }
+   
     } catch (error) {
-      console.error('Payment Error:', error);
-      toast.error(error.message || "حدث خطأ في عملية الدفع");
-    } finally {
       setIsLoading(false);
+      toast.error(error.message || "حدث خطأ في عملية الدفع");
     }
-  };
+   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -308,7 +314,6 @@ const PaymentForm = ({ form, isLoading, setIsLoading, isHomePage, projects }) =>
         
         <div className="border rounded-lg p-6 bg-card">
           <CardElement 
-            ref={cardRef}
             options={{
               style: {
                 base: {
@@ -323,6 +328,7 @@ const PaymentForm = ({ form, isLoading, setIsLoading, isHomePage, projects }) =>
               hidePostalCode: true,
             }}
             onChange={(e) => setCardComplete(e.complete)}
+            className="w-full"
           />
           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-4">
             <Lock className="h-4 w-4" />

@@ -1,5 +1,6 @@
 // store/slices/contactsSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { getContacts } from '@/actions/contact';
 
 interface Contact {
   id: string;
@@ -14,53 +15,54 @@ interface Contact {
 
 interface ContactsState {
   items: Contact[];
-  unreadCount: number;
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: ContactsState = {
   items: [],
-  unreadCount: 0,
-  isLoading: false,
-  error: null,
+  isLoading: true,
+  error: null
 };
+
+export const fetchContacts = createAsyncThunk(
+  'contacts/fetchContacts',
+  async () => {
+    return await getContacts();
+  }
+);
 
 const contactsSlice = createSlice({
   name: 'contacts',
   initialState,
   reducers: {
-    setContacts: (state, action: PayloadAction<Contact[]>) => {
+    addContact: (state, action) => {
+      const exists = state.items.some(item => item.id === action.payload.id);
+      if (!exists) {
+        state.items = [action.payload, ...state.items];
+      }
+    },
+    updateContacts: (state, action) => {
       state.items = action.payload;
-      state.unreadCount = action.payload.filter(item => !item.isRead).length;
-    },
-    addContact: (state, action: PayloadAction<Contact>) => {
-      state.items.unshift(action.payload);
-      if (!action.payload.isRead) {
-        state.unreadCount += 1;
-      }
-    },
-    markContactAsRead: (state, action: PayloadAction<string>) => {
-      const contact = state.items.find(item => item.id === action.payload);
-      if (contact && !contact.isRead) {
-        contact.isRead = true;
-        state.unreadCount = Math.max(0, state.unreadCount - 1);
-      }
-    },
-    setContactsLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-    setContactsError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
+    }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchContacts.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchContacts.rejected, (state) => {
+        state.isLoading = false;
+        state.items = [];
+        state.error = "حدث خطأ في جلب الرسائل";
+      });
   },
 });
 
-export const {
-  setContacts,
-  addContact,
-  markContactAsRead,
-  setContactsLoading,
-  setContactsError,
-} = contactsSlice.actions;
+export const { addContact, updateContacts } = contactsSlice.actions;
 export default contactsSlice.reducer;

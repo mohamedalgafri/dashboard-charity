@@ -27,11 +27,11 @@ interface DashboardSidebarProps {
   links: SidebarNavItem[];
   settings?: {
     logoText?: string;
-    logoImage?:string;
+    logoImage?: string;
   }
 }
 
-export function  DashboardSidebar({ links , settings }: DashboardSidebarProps) {
+export function DashboardSidebar({ links, settings }: DashboardSidebarProps) {
   const path = usePathname();
 
 
@@ -58,25 +58,25 @@ export function  DashboardSidebar({ links , settings }: DashboardSidebarProps) {
           >
             <div className="flex h-full max-h-screen flex-1 flex-col gap-2">
               <div className="flex h-14 items-center p-4 lg:h-[60px] rtl:flex-row-reverse">
-                {isSidebarExpanded ? 
-                
-                <Link href="/" className="flex gap-2 items-center space-x-1.5">
-                  {
-                    settings?.logoText &&(
-                      <span className="font-satoshi text-lg font-bold">
-                        {settings?.logoText}
-                      </span>
-                    )
-                  }
+                {isSidebarExpanded ?
 
-                  {
-                    settings?.logoImage &&(
-                      <img className="size-14 object-contain" src={settings?.logoImage} />
-                    )
-                  }
-                </Link>  
+                  <Link href="/" className="flex gap-2 items-center space-x-1.5">
+                    {
+                      settings?.logoText && (
+                        <span className="font-satoshi text-lg font-bold">
+                          {settings?.logoText}
+                        </span>
+                      )
+                    }
 
-                : null}
+                    {
+                      settings?.logoImage && (
+                        <img className="size-14 object-contain" src={settings?.logoImage} />
+                      )
+                    }
+                  </Link>
+
+                  : null}
 
                 <Button
                   variant="ghost"
@@ -127,17 +127,17 @@ export function  DashboardSidebar({ links , settings }: DashboardSidebarProps) {
                                     ? "bg-muted"
                                     : "text-muted-foreground hover:text-accent-foreground",
                                   item.disabled &&
-                                    "cursor-not-allowed opacity-80 hover:bg-transparent hover:text-muted-foreground",
+                                  "cursor-not-allowed opacity-80 hover:bg-transparent hover:text-muted-foreground",
                                 )}
                               >
                                 <Icon className="size-5" />
                                 {item.title}
                                 {item.badge !== undefined && (
-  <RealTimeBadge 
-    initialCount={item.badge} 
-    type={item.href.includes('donations') ? 'donations' : 'contacts'} 
-  />
-)}
+                                  <RealTimeBadge
+                                    initialCount={item.badge}
+                                    type={item.href.includes('donations') ? 'donations' : 'contacts'}
+                                  />
+                                )}
                               </Link>
                             ) : (
                               <Tooltip key={`tooltip-${item.title}`}>
@@ -151,7 +151,7 @@ export function  DashboardSidebar({ links , settings }: DashboardSidebarProps) {
                                         ? "bg-muted"
                                         : "text-muted-foreground hover:text-accent-foreground",
                                       item.disabled &&
-                                        "cursor-not-allowed opacity-80 hover:bg-transparent hover:text-muted-foreground",
+                                      "cursor-not-allowed opacity-80 hover:bg-transparent hover:text-muted-foreground",
                                     )}
                                   >
                                     <span className="flex size-full items-center justify-center">
@@ -179,7 +179,7 @@ export function  DashboardSidebar({ links , settings }: DashboardSidebarProps) {
   );
 }
 
-export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) {
+export function MobileSheetSidebar({ links, settings }: DashboardSidebarProps) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const { isSm, isMobile } = useMediaQuery();
@@ -202,22 +202,22 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
           <ScrollArea className="h-full overflow-y-auto">
             <div className="flex h-screen flex-col " >
               <nav className="flex flex-1 flex-col gap-y-8 p-6 text-lg font-medium">
-              <Link href="/" className="flex gap-2 rtl:flex-row-reverse rtl:justify-start items-center space-x-1.5">
-                {
-                    settings?.logoImage &&(
+                <Link href="/" className="flex gap-2 rtl:flex-row-reverse rtl:justify-start items-center space-x-1.5">
+                  {
+                    settings?.logoImage && (
                       <img className="size-14 object-contain" src={settings?.logoImage} />
                     )
                   }
 
                   {
-                    settings?.logoText &&(
+                    settings?.logoText && (
                       <span className="font-satoshi text-lg font-bold">
                         {settings?.logoText}
                       </span>
                     )
                   }
-               
-                </Link> 
+
+                </Link>
 
                 {links.map((section) => (
                   <section
@@ -245,17 +245,17 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
                                   ? "bg-muted"
                                   : "text-muted-foreground hover:text-accent-foreground",
                                 item.disabled &&
-                                  "cursor-not-allowed opacity-80 hover:bg-transparent hover:text-muted-foreground",
+                                "cursor-not-allowed opacity-80 hover:bg-transparent hover:text-muted-foreground",
                               )}
                             >
                               <Icon className="size-5" />
                               {item.title}
                               {item.badge !== undefined && (
-  <RealTimeBadge 
-    initialCount={item.badge} 
-    type={item.href.includes('donations') ? 'donations' : 'contacts'} 
-  />
-)}
+                                <RealTimeBadge
+                                  initialCount={item.badge}
+                                  type={item.href.includes('donations') ? 'donations' : 'contacts'}
+                                />
+                              )}
                             </Link>
                           </Fragment>
                         )
@@ -264,7 +264,7 @@ export function MobileSheetSidebar({ links , settings }: DashboardSidebarProps) 
                   </section>
                 ))}
 
-               
+
               </nav>
             </div>
           </ScrollArea>
