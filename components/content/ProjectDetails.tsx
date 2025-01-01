@@ -120,7 +120,7 @@ export default function ProjectDetails({ project, relatedProjects }: ProjectDeta
         {/* قائمة المتبرعين */}
         <div className="bg-muted/30 w-full rounded-lg py-6 px-4">
           <h2 className="text-xl font-bold mb-6">المتبرعون ({project.donations.length})</h2>
-          <ScrollArea className={` ${!isProjectCompleted ? "h-[100px] md:h-[160px] lg:h-[790px]" : " h-auto "}   rounded-md border p-3`}>
+          <ScrollArea className={` ${!isProjectCompleted ? "h-[350px] md:h-[450px] lg:h-[790px]" : " h-auto "}   rounded-md border p-3`}>
             <div className="space-y-4" dir="rtl">
               {project.donations.length > 0 ? (
                 project.donations.map((donation) => (
